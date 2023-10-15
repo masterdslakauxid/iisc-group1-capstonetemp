@@ -2,8 +2,8 @@ import streamlit as st
 import numpy as np
 import time
 import random
-import enchant
-from itertools import chain, cycle
+#import enchant
+#from itertools import chain, cycle
 
 st.header("Group1 - Capstone project")
 title = st.text_input('Activity', '')
