@@ -1,4 +1,5 @@
 import streamlit as st
+from pages.scripts.app2 import load_image
 
 
 st.header("GAN Model")

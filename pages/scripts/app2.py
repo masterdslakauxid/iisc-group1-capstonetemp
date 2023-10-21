@@ -10,17 +10,22 @@ import tensorflow as tf
 from tensorflow.keras.layers import *
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
-from google.colab import drive
+#from google.colab import drive
 
-import cv2
+#import cv2 //AK commented out.
 from moviepy.editor import VideoFileClip
 import matplotlib.pyplot as plt
 #---------------------------------------------------------------------------
 
-drive.mount('/content/drive', force_remount=True)
+#drive.mount('/content/drive', force_remount=True) DB
 # Load the value of 'classified_label' from Google Drive
-with open('/content/drive/MyDrive/Phase-6_ML_Classifier_app_py/classified_label.txt', 'r') as f:
+#with open('/content/drive/MyDrive/Phase-6_ML_Classifier_app_py/classified_label.txt', 'r') as f:
+#    classified_label = f.read()
+
+#New............................AK    
+with open('C:/Users/Admin/iisc-capstone/iisc-group1-capstonetemp/pages/scripts/content/classified_label.txt', 'r') as f:
     classified_label = f.read()
+
 
 # Now you can use 'classified_label' in app2.py
 print("The classified label is:", classified_label)
@@ -34,11 +39,11 @@ for action_folder in action_folders:
     L = action_class
     break
 #---------------------------------------------------------------------------
-
-user_input1 = st.text_input("Enter the batch size","Your desired batch size ")
-batch_size = int(user_input1)
-user_input2 = st.text_input("Enter the no. of epochs","Your desired no. of epochs ")
-num_epochs = int(user_input2)
+#AK commented out this
+# user_input1 = st.text_input("Enter the batch size","Your desired batch size ")
+# batch_size = int(user_input1)
+# user_input2 = st.text_input("Enter the no. of epochs","Your desired no. of epochs ")
+# num_epochs = int(user_input2)
 #---------------------------------------------------------------------------
 
 def load_image(image_path):
@@ -167,7 +172,7 @@ if __name__ == "__main__":
     if st.button('Generate Video'):
     ## Hyperparameters
     #batch_size = 32
-    latent_dim = 128
+      latent_dim = 128
     #num_epochs = 6
     #images_path = glob("data/*")
     images_path = glob('/content/drive/MyDrive/Phase-6_ML_Classifier_app_py/C-'+L+'/frames/*')

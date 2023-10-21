@@ -264,21 +264,21 @@ st.write("Loading the 'best_rf_classifier'..")
 import joblib
 
 # Load the saved model
-loaded_rf_classifier = joblib.load('C:/Users/Admin/iisc-capstone/iisc-group1-capstonetemp/pages/scripts/'+'best_rf_classifier.pkl')
+loaded_rf_classifier = joblib.load('C:/Users/Admin/iisc-capstone/iisc-group1-capstonetemp/pages/scripts/content/'+'best_rf_classifier.pkl')
 #------------------------------------------------------
 
 st.write("Loading the 'best_xgb_classifier'..")
 import joblib
 
 # Load the saved model
-loaded_xgb_classifier = joblib.load('best_xgb_classifier.pkl')
+loaded_xgb_classifier = joblib.load('C:/Users/Admin/iisc-capstone/iisc-group1-capstonetemp/pages/scripts/content/'+'best_xgb_classifier.pkl')
 #------------------------------------------------------
 
 st.write("Loading the 'best_lgb_classifier'..")
 import joblib
 
 # Load the saved model
-loaded_lgb_classifier = joblib.load('best_lgb_classifier.pkl')
+loaded_lgb_classifier = joblib.load('C:/Users/Admin/iisc-capstone/iisc-group1-capstonetemp/pages/scripts/content/'+'best_lgb_classifier.pkl')
 #------------------------------------------------------
 
 def preprocess_text(text):
@@ -289,12 +289,14 @@ def preprocess_text(text):
 #------------------------------------------------------
 
 def predict_resume_with_rf(text):
-    st.write("invoked ...predict_resume_with_rf")
+    #st.write("invoked ...predict_resume_with_rf")
     outputCategory ="123"
-#   processed_text = preprocess_text(text)
-#   review = Tfidf_word_vectorizer.transform([processed_text])
-#   pred = loaded_rf_classifier.predict(review)
-#   outputCategory = df_final.labels[df_final['LabelEncoded_Action_labels']==pred[0]].unique()
+    processed_text = preprocess_text(text)
+    review = Tfidf_word_vectorizer.transform([processed_text])
+    pred = loaded_rf_classifier.predict(review)
+    outputCategory = df_final.labels[df_final['LabelEncoded_Action_labels']==pred[0]].unique()
+    with open('C:/Users/Admin/iisc-capstone/iisc-group1-capstonetemp/pages/scripts/content/classified_label.txt', 'w') as f:
+        f.write(outputCategory[0])
     return outputCategory
 #------------------------------------------------------
 
@@ -314,24 +316,25 @@ def predict_resume_with_lgb(text):
   return outputCategory
 #------------------------------------------------------
 
-user_input = st.text_input("Enter the text input","Your tweet here ")
-if st.button('classify with RandomForest'):
-    # Predicting the unknown action label
-    pred_action_label_rf = predict_resume_with_rf(user_input)
-    classified_label = pred_action_label_rf[0]
-    st.write(pred_action_label_rf[0])
+classified_label=""
+# user_input = st.text_input("Enter the text input","Your tweet here ")   #AK
+# if st.button('classify with RandomForest'):
+#     # Predicting the unknown action label
+#     pred_action_label_rf = predict_resume_with_rf(user_input)
+#     classified_label = pred_action_label_rf[0]
+#     st.write(pred_action_label_rf[0])
 
-elif st.button('classify with XGBoost'):
-    # Predicting the unknown action label
-    pred_action_label_xgb = predict_resume_with_xgb(user_input)
-    classified_label = pred_action_label_xgb[0]
-    st.write(pred_action_label_xgb[0])
+# elif st.button('classify with XGBoost'):
+#     # Predicting the unknown action label
+#     pred_action_label_xgb = predict_resume_with_xgb(user_input)
+#     classified_label = pred_action_label_xgb[0]
+#     st.write(pred_action_label_xgb[0])
 
-elif st.button('classify with Microsoft LGBM'):
-    # Predicting the unknown action label
-    pred_action_label_lgb = predict_resume_with_lgb(user_input)
-    classified_label = pred_action_label_lgb[0]
-    st.write(pred_action_label_lgb[0])
+# elif st.button('classify with Microsoft LGBM'):
+#     # Predicting the unknown action label
+#     pred_action_label_lgb = predict_resume_with_lgb(user_input)
+#     classified_label = pred_action_label_lgb[0]
+#     st.write(pred_action_label_lgb[0])
 
-with open('/content/drive/MyDrive/Phase-6_ML_Classifier_app_py/classified_label.txt', 'w') as f:
+with open('C:/Users/Admin/iisc-capstone/iisc-group1-capstonetemp/pages/scripts/content/classified_label.txt', 'w') as f:
     f.write(classified_label)
