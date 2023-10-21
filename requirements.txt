@@ -1,11 +1,11 @@
 pyenchant
 pyspark
 handyspark
-wordcloud
-xgboost
-lightgbm
-google
-google.colab
-pandas
-sklearn
-joblib
+# wordcloud
+# xgboost
+# lightgbm
+# google
+# google.colab
+# pandas
+# sklearn
+# joblib
