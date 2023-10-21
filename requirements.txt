@@ -18,3 +18,4 @@ moviepy
 numpy==1.23.5
 mxnet-mkl==1.6.0
 nltk
+openpyxl
