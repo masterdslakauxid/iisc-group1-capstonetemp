@@ -13,9 +13,9 @@ scikit-learn==1.2.2
 opencv-python
 tensorflow
 moviepy
-numpy==1.23.1
+#numpy==1.23.1
 #numpy==1.24.3
-#numpy==1.23.5
+numpy==1.23.5
 mxnet-mkl==1.6.0
 nltk
 openpyxl
