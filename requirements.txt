@@ -1,1 +1,11 @@
 pyenchant
+pyspark
+handyspark
+wordcloudpi
+xgboost
+lightgbm
+google
+google.colab
+pandas
+sklearn
+joblib

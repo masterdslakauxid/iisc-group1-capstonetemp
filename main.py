@@ -6,14 +6,26 @@ import random
 #from itertools import chain, cycle
 
 st.header("Group1 - Capstone project")
-title = st.text_input('Activity', '')
+# title = st.text_input('Activity', '')
+# batch_size = st.text_input('Batch size', '')
+# epoch_size = st.text_input('Epoch size', '')
 
-if st.button('Submit'):
-    if len(title) > 0:
-        st.write(" The entered activity is ", title.upper())
-    else:
-        st.error('Enter a valid activity name .')            
+# def my_function():
+#     st.write("button clicked")
 
+# if st.button('Submit'):
+#     if len(title) > 0:
+#         st.write(" The entered activity is ", title.upper())
+#         st.write("Invoking the Model")
+#         con= st.button("Convert", on_click= my_function(), args= ["1,2"])
+#     else:
+#         st.error('Enter a valid activity name .')            
+
+# if st.button('Classify SGBoost'):
+#     if len(title) > 0:
+#         st.write(" The entered activity is ", title.upper())
+#         st.write("Invoking the Model")
+#         con= st.button("Classify SGBoost", on_click= my_function(), args= ["1,2"])
 
 
 # dict = enchant.Dict("en_US")
