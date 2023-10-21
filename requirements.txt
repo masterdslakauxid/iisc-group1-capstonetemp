@@ -7,7 +7,6 @@ lightgbm
 #google
 #google.colab
 pandas
-sklearn
 joblib
 scikit-learn==1.2.2
 #For app2.py
