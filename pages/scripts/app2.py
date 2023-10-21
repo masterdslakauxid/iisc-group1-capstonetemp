@@ -277,3 +277,107 @@ if __name__ == "__main__":
     output_video_path = '/content/generated_video.avi'
     gen_video(frame_directory, num_epochs, output_video_path)
     play_video(output_video_path)
+
+def generate_video() :
+    ## Hyperparameters
+    #batch_size = 32
+    latent_dim = 128
+    #num_epochs = 6
+    #images_path = glob("data/*")
+    images_path = glob('/content/drive/MyDrive/Phase-6_ML_Classifier_app_py/C-'+L+'/frames/*')
+
+    #d_model = build_discriminator()
+    #g_model = build_generator(latent_dim)
+    if L == 'Archery':
+      Archery_d_model.load_weights("/content/saved_model/Archery_d_model.h5")
+      Archery_g_model.load_weights("/content/saved_model/Archery_g_model.h5")
+      gan = GAN(Archery_d_model, Archery_g_model, latent_dim)
+    elif L == 'Basketball':
+      Basketball_d_model.load_weights("/content/saved_model/Basketball_d_model.h5")
+      Basketball_g_model.load_weights("/content/saved_model/Basketball_g_model.h5")
+      gan = GAN(Basketball_d_model, Basketball_g_model, latent_dim)
+    elif L == 'Biking':
+      Biking_d_model.load_weights("/content/saved_model/Biking_d_model.h5")
+      Biking_g_model.load_weights("/content/saved_model/Biking_g_model.h5")
+    elif L == 'CricketShot':
+      CricketShot_d_model.load_weights("/content/saved_model/CricketShot_d_model.h5")
+      CricketShot_g_model.load_weights("/content/saved_model/CricketShot_g_model.h5")
+      gan = GAN(CricketShot_d_model, CricketShot_g_model, latent_dim)
+    elif L == 'HorseRace':
+      HorseRace_d_model.load_weights("/content/saved_model/HorseRace_d_model.h5")
+      HorseRace_g_model.load_weights("/content/saved_model/HorseRace_g_model.h5")
+      gan = GAN(HorseRace_d_model, HorseRace_g_model, latent_dim)
+    elif L == 'IceDancing':
+      IceDancing_d_model.load_weights("/content/saved_model/IceDancing_d_model.h5")
+      IceDancing_g_model.load_weights("/content/saved_model/IceDancing_g_model.h5")
+    elif L == 'Kayaking':
+      Kayaking_d_model.load_weights("/content/saved_model/Kayaking_d_model.h5")
+      Kayaking_g_model.load_weights("/content/saved_model/Kayaking_g_model.h5")
+      gan = GAN(Kayaking_d_model, Kayaking_g_model, latent_dim)
+    elif L == 'LongJump':
+      LongJump_d_model.load_weights("/content/saved_model/LongJump_d_model.h5")
+      LongJump_g_model.load_weights("/content/saved_model/LongJump_g_model.h5")
+      gan = GAN(LongJump_d_model, LongJump_g_model, latent_dim)
+    elif L == 'MilitaryParade':
+      MilitaryParade_d_model.load_weights("/content/saved_model/MilitaryParade_d_model.h5")
+      MilitaryParade_g_model.load_weights("/content/saved_model/MilitaryParade_g_model.h5")
+      gan = GAN(MilitaryParade_d_model, MilitaryParade_g_model, latent_dim)
+    elif L == 'PlayingTabla':
+      PlayingTabla_d_model.load_weights("/content/saved_model/PlayingTabla_d_model.h5")
+      PlayingTabla_g_model.load_weights("/content/saved_model/PlayingTabla_g_model.h5")
+      gan = GAN(PlayingTabla_d_model, PlayingTabla_g_model, latent_dim)
+    else:
+      print('Invalid action label')
+
+    #d_model.summary()
+    #g_model.summary()
+
+    bce_loss_fn = tf.keras.losses.BinaryCrossentropy(from_logits=True, label_smoothing=0.1)
+    d_optimizer = tf.keras.optimizers.Adam(learning_rate=0.0002, beta_1=0.5)
+    g_optimizer = tf.keras.optimizers.Adam(learning_rate=0.0002, beta_1=0.5)
+    gan.compile(d_optimizer, g_optimizer, bce_loss_fn)
+
+    images_dataset = tf_dataset(images_path, batch_size)
+
+    for epoch in range(num_epochs):
+        gan.fit(images_dataset, epochs=1)
+        #if epoch == num_epochs-1:
+          #g_model.save("/content/g_model.h5")
+          #d_model.save("/content/d_model.h5")
+
+        n_samples = 25
+        noise = np.random.normal(size=(n_samples, latent_dim))
+        if L == 'Archery':
+          examples = Archery_g_model.predict(noise)
+          save_plot(examples, epoch, int(np.sqrt(n_samples)))
+        elif L == 'Basketball':
+          examples = Basketball_g_model.predict(noise)
+          save_plot(examples, epoch, int(np.sqrt(n_samples)))
+        elif L == 'Biking':
+          examples = Biking_g_model.predict(noise)
+          save_plot(examples, epoch, int(np.sqrt(n_samples)))
+        elif L == 'CricketShot':
+          examples = CricketShot_g_model.predict(noise)
+          save_plot(examples, epoch, int(np.sqrt(n_samples)))
+        elif L == 'HorseRace':
+          examples = HorseRace_g_model.predict(noise)
+          save_plot(examples, epoch, int(np.sqrt(n_samples)))
+        elif L == 'IceDancing':
+          examples = IceDancing_g_model.predict(noise)
+          save_plot(examples, epoch, int(np.sqrt(n_samples)))
+        elif L == 'LongJump':
+          examples = LongJump_g_model.predict(noise)
+          save_plot(examples, epoch, int(np.sqrt(n_samples)))
+        elif L == 'MilitaryParade':
+          examples = MilitaryParade_g_model.predict(noise)
+          save_plot(examples, epoch, int(np.sqrt(n_samples)))
+        elif L == 'PlayingTabla':
+          examples = PlayingTabla_g_model.predict(noise)
+          save_plot(examples, epoch, int(np.sqrt(n_samples)))
+        else:
+          print('Invalid frames')
+
+    frame_directory = '/content/'
+    output_video_path = '/content/generated_video.avi'
+    gen_video(frame_directory, num_epochs, output_video_path)
+    play_video(output_video_path)
