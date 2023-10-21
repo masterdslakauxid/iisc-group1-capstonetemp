@@ -4,8 +4,8 @@ handyspark
 wordcloud
 xgboost
 lightgbm
-google
-google.colab
+#google
+#google.colab
 pandas
 sklearn
 joblib
