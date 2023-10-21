@@ -57,6 +57,10 @@ from sklearn.model_selection import GridSearchCV
 import xgboost as xgb
 import lightgbm as lgb
 
+#Custom import
+from pages.scripts.content.util import get_base_path, get_content_folder, get_content_path
+from pages.scripts.content.util import get_content_pkl_path, get_classified_lable_file_path, is_debug
+
 #from google.colab import drive  AK
 #------------------------------------------------------
 
@@ -66,6 +70,7 @@ import lightgbm as lgb
 #------------------------------------------------------
 
 import pandas as pd
+
 
 # Define the path to the Excel file
 excel_file_path = 'pages/scripts/content/STG_excelfile.xlsx'
@@ -262,23 +267,43 @@ print (y_test.shape)
 
 st.write("Loading the 'best_rf_classifier'..")
 import joblib
+import os
 
+base_path = get_base_path() # /user/home
+content_folder = get_content_folder()  # content
+content_path = get_content_path() # /user/home/content
+pkl_folder_path = get_content_pkl_path() # /user/home/content
+
+
+#st.write(content_path)
+best_rf_classifier_file = os.path.join(pkl_folder_path, 'best_rf_classifier.pkl')
+loaded_xgb_classifier_file = os.path.join(pkl_folder_path, 'best_xgb_classifier.pkl')
+loaded_lgb_classifier_file = os.path.join(pkl_folder_path, 'best_lgb_classifier.pkl')
+#classified_label_file = os.path.join(content_path, 'classified_label.txt')
+
+if is_debug() == True:
+    print(" best_rf_classifier_file path -> ", best_rf_classifier_file)
+    print(" loaded_xgb_classifier_file path -> ", loaded_xgb_classifier_file)
+    print(" loaded_lgb_classifier_file path ->", loaded_lgb_classifier_file)
+    print(" classified_label_file path ->", get_classified_lable_file_path())
+    
 # Load the saved model
-loaded_rf_classifier = joblib.load('C:/Users/Admin/iisc-capstone/iisc-group1-capstonetemp/pages/scripts/content/'+'best_rf_classifier.pkl')
+loaded_rf_classifier = joblib.load(best_rf_classifier_file)
+
 #------------------------------------------------------
 
 st.write("Loading the 'best_xgb_classifier'..")
 import joblib
 
 # Load the saved model
-loaded_xgb_classifier = joblib.load('C:/Users/Admin/iisc-capstone/iisc-group1-capstonetemp/pages/scripts/content/'+'best_xgb_classifier.pkl')
+loaded_xgb_classifier = joblib.load(loaded_xgb_classifier_file)
 #------------------------------------------------------
 
 st.write("Loading the 'best_lgb_classifier'..")
 import joblib
 
 # Load the saved model
-loaded_lgb_classifier = joblib.load('C:/Users/Admin/iisc-capstone/iisc-group1-capstonetemp/pages/scripts/content/'+'best_lgb_classifier.pkl')
+loaded_lgb_classifier = joblib.load(loaded_lgb_classifier_file)
 #------------------------------------------------------
 
 def preprocess_text(text):
@@ -289,13 +314,11 @@ def preprocess_text(text):
 #------------------------------------------------------
 
 def predict_resume_with_rf(text):
-    #st.write("invoked ...predict_resume_with_rf")
-    outputCategory ="123"
     processed_text = preprocess_text(text)
     review = Tfidf_word_vectorizer.transform([processed_text])
     pred = loaded_rf_classifier.predict(review)
     outputCategory = df_final.labels[df_final['LabelEncoded_Action_labels']==pred[0]].unique()
-    with open('C:/Users/Admin/iisc-capstone/iisc-group1-capstonetemp/pages/scripts/content/classified_label.txt', 'w') as f:
+    with open(get_classified_lable_file_path(), 'w') as f:
         f.write(outputCategory[0])
     return outputCategory
 #------------------------------------------------------
@@ -305,6 +328,8 @@ def predict_resume_with_xgb(text):
   review = Tfidf_word_vectorizer.transform([processed_text])
   pred = loaded_xgb_classifier.predict(review)
   outputCategory = df_final.labels[df_final['LabelEncoded_Action_labels']==pred[0]].unique()
+  with open(get_classified_lable_file_path(), 'w') as f:
+    f.write(outputCategory[0])
   return outputCategory
 #------------------------------------------------------
 
@@ -313,10 +338,12 @@ def predict_resume_with_lgb(text):
   review = Tfidf_word_vectorizer.transform([processed_text])
   pred = loaded_lgb_classifier.predict(review)
   outputCategory = df_final.labels[df_final['LabelEncoded_Action_labels']==pred[0]].unique()
+  with open(get_classified_lable_file_path(), 'w') as f:
+    f.write(outputCategory[0])
   return outputCategory
 #------------------------------------------------------
 
-classified_label=""
+#classified_label=""
 # user_input = st.text_input("Enter the text input","Your tweet here ")   #AK
 # if st.button('classify with RandomForest'):
 #     # Predicting the unknown action label
@@ -336,5 +363,5 @@ classified_label=""
 #     classified_label = pred_action_label_lgb[0]
 #     st.write(pred_action_label_lgb[0])
 
-with open('C:/Users/Admin/iisc-capstone/iisc-group1-capstonetemp/pages/scripts/content/classified_label.txt', 'w') as f:
-    f.write(classified_label)
+#with open(os.path.join(content_path, 'classified_label.txt'), 'w') as f:
+#   f.write(classified_label)

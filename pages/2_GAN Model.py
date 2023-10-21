@@ -1,8 +1,15 @@
 import streamlit as st
 from pages.scripts.app2 import load_image
+from pages.scripts.content.util import get_classified_lable_file_path
 
 
 st.header("GAN Model")
+
+#New............................AK    
+with open(get_classified_lable_file_path(), 'r') as f:
+    classified_label = f.read()
+
+st.write("The classified label:", classified_label)
 
 user_input1 = st.text_input("Enter the batch size", help="The recommended size is 1 or 2 for testing", placeholder="1")
 user_input2 = st.text_input("Enter the no. of epochs", help="The recommended size is 1 or 2 for testing", placeholder="1" )
@@ -29,4 +36,5 @@ if st.button('Generate Video'):
         st.error("Enter the epoch size")
 
     if valid_inputs == True:
+        load_image()
         st.write("Video link")

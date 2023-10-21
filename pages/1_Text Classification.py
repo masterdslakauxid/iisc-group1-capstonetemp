@@ -1,11 +1,11 @@
 import streamlit as st
-#from pages.scripts.myapp import test_function
+
 from pages.scripts.app import predict_resume_with_rf, predict_resume_with_xgb, predict_resume_with_lgb 
 
 st.header("Text Classification")
+
 user_input = st.text_input("Enter the Activity", help="Archery, Play Basket ball", placeholder="A person playing Archery" )
 
-#col1, col2, col3 = st.columns([33,33,33])
 col1, col2, col3 = st.columns([3,3,3])
 classified_label = ""
 

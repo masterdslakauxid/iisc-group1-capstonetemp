@@ -15,6 +15,11 @@ from tensorflow.keras.optimizers import Adam
 #import cv2 //AK commented out.
 from moviepy.editor import VideoFileClip
 import matplotlib.pyplot as plt
+
+#Custom import
+from pages.scripts.content.util import get_base_path, get_content_folder, get_content_path
+from pages.scripts.content.util import get_content_pkl_path, get_classified_lable_file_path, is_debug
+
 #---------------------------------------------------------------------------
 
 #drive.mount('/content/drive', force_remount=True) DB
@@ -23,13 +28,13 @@ import matplotlib.pyplot as plt
 #    classified_label = f.read()
 
 #New............................AK    
-with open('C:/Users/Admin/iisc-capstone/iisc-group1-capstonetemp/pages/scripts/content/classified_label.txt', 'r') as f:
+with open(get_classified_lable_file_path(), 'r') as f:
     classified_label = f.read()
 
-
-# Now you can use 'classified_label' in app2.py
-print("The classified label is:", classified_label)
-st.write("The classified label:", classified_label)
+if is_debug() == True:
+  # Now you can use 'classified_label' in app2.py
+  print("The classified label is:", classified_label)
+  #st.write("The classified label:", classified_label)
 
 action_folders = ['C-Archery', 'C-Basketball', 'C-Biking', 'C-CricketShot', 'C-HorseRace', 'C-IceDancing', 'C-Kayaking', 'C-LongJump', 'C-MilitaryParade', 'C-PlayingTabla']
 
