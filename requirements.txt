@@ -7,7 +7,7 @@ lightgbm
 #google
 #google.colab
 pandas
-#sklearn
+sklearn
 joblib
 scikit-learn==1.2.2
 #For app2.py
@@ -16,4 +16,3 @@ tensorflow
 moviepy
 numpy==1.23.1
 mxnet-mkl==1.6.0
-nlk
