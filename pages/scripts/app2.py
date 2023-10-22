@@ -22,6 +22,10 @@ from pages.scripts.content.util import get_content_pkl_path, get_classified_labl
 
 
 #---------------------------------------------------------------------------
+IMG_H = 64
+IMG_W = 64
+IMG_C = 3  ## Change this to 1 for grayscale.
+w_init = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.02)
 
 #drive.mount('/content/drive', force_remount=True)
 # Load the value of 'classified_label' from Google Drive
@@ -50,7 +54,24 @@ for action_folder in action_folders:
 # num_epochs = int(user_input2)
 #---------------------------------------------------------------------------
 
+def conv_block(inputs, num_filters, kernel_size, padding="same", strides=2, activation=True):
+    x = Conv2D(
+        filters=num_filters,
+        kernel_size=kernel_size,
+        kernel_initializer=w_init,
+        padding=padding,
+        strides=strides,
+    )(inputs)
+
+    if activation:
+        x = LeakyReLU(alpha=0.2)(x)
+        x = Dropout(0.3)(x)
+    return x
+#---------------------------------------------------------------------------
+
 def load_image(image_path):
+    if is_debug()== True:
+       print("  image_path --->", image_path); 
     img = tf.io.read_file(image_path)
     img = tf.io.decode_jpeg(img)
     img = tf.image.resize_with_crop_or_pad(img, IMG_H, IMG_W)
@@ -118,6 +139,21 @@ class GAN(Model):
 
         return {"d1_loss": d1_loss, "d2_loss": d2_loss, "g_loss": g_loss}
 #---------------------------------------------------------------------------
+def save_plot_new(examples):
+    gen_images = []
+    examples = (examples + 1) / 2.0
+    for i in range(len(examples)):
+        # cv2.imwrite(f"{i}.png", examples[i])
+        pyplot.axis("off")
+        pyplot.imshow(examples[i])  ## pyplot.imshow(np.squeeze(examples[i], axis=-1))
+        if os.path.exists(os.path.join(get_content_path(), "generated_plot_epoch-{epoch+1}/")) == False:
+          os.makedirs(f"/content/generated_plot_epoch-{epoch+1}/")
+
+        c = cv2.imread(f"{i}.png")
+        gen_images.append(c)
+    return gen_images
+
+
 
 def save_plot(examples, epoch, n, isvideo):
     gen_images = []
@@ -126,6 +162,7 @@ def save_plot(examples, epoch, n, isvideo):
         #pyplot.subplot(n, n, i+1)
         pyplot.axis("off")
         pyplot.imshow(examples[i])  ## pyplot.imshow(np.squeeze(examples[i], axis=-1))
+        
         #qf = pyplot.imshow(examples[i])
         #gen_images.append(examples[i])
         if os.path.exists(f"/content/generated_plot_epoch-{epoch+1}/") == False:
@@ -142,26 +179,25 @@ def save_plot(examples, epoch, n, isvideo):
     return gen_images
 #---------------------------------------------------------------------------
 
-def gen_video(frame_directory, num_epochs, output_video_path, frames):
-    # Load 25 frames from the last image (based on num_epochs)
-    #for i in range(25):
-        #image_path = f"/content/generated_plot_epoch-{n+1}/
-        #image_path = f'{frame_directory}/generated_plot_epoch-{num_epochs}.png'
-        #img = cv2.imread(image_path)
-        #img = cv2.imread(gen_images[i])
-        #frames.append(img)
+def gen_video(output_video_path):
+    #frames =  [cv2.imread(os.path.join(get_content_path(), "generated_images/") + i) for i in os.listdir("C:/Users/Admin/iisc-capstone/iisc-group1-capstonetemp/pages/scripts/content/generated_images")]
+    frames =  [cv2.imread(i) for i in os.listdir(os.path.join(get_content_path(), "generated_images"))]
 
+    # cv2.imshow(frames[0])
+    
     # Get the height and width of the frames
     height, width, layers = frames[0].shape
 
     # Define the video codec and create a VideoWriter object
-    #fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # We can change the codec as needed
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
     out = cv2.VideoWriter(output_video_path, fourcc, 10.0, (width, height))
 
     # Write frames to the video
     for frame in frames:
-        out.write(frame)
+        print("Frame from gen_video()", frame)
+        rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        #st.image(rgb_image, use_column_width=True, channels="BGR")
+        out.write(rgb_image)
 
     # Release the VideoWriter
     out.release()
@@ -286,6 +322,90 @@ def play_video(video_path, fps=25, width=120, height=100, loop=True):
 #     gen_video(frame_directory, num_epochs, output_video_path, gen_images)
 #     play_video(output_video_path)
 
+#---------------------------------------------------------------------------
+def deconv_block(inputs, num_filters, kernel_size, strides, bn=True):
+    x = Conv2DTranspose(
+        filters=num_filters,
+        kernel_size=kernel_size,
+        kernel_initializer=w_init,
+        padding="same",
+        strides=strides,
+        use_bias=False
+        )(inputs)
+
+    if bn:
+        x = BatchNormalization()(x)
+        x = LeakyReLU(alpha=0.2)(x)
+    return x
+
+#---------------------------------------------------------------------------
+
+def save_examples(examples):
+
+  counter = 0 
+  for image in examples:
+      pyplot.axis("off")
+      pyplot.imshow(image)  ## pyplot.imshow(np.squeeze(examples[i], axis=-1))
+      filename = os.path.join(get_content_path(), "generated_images") + "/"+ str(counter) + ".png"
+      print( "filename from save_examples  --------------->", filename)
+      pyplot.savefig(filename)
+      counter = counter + 1 
+  
+
+
+#---------------------------------------------------------------------------
+
+
+def build_generator(latent_dim):
+    f = [2**i for i in range(5)][::-1]
+    filters = 32
+    output_strides = 16
+    h_output = IMG_H // output_strides
+    w_output = IMG_W // output_strides
+
+    noise = Input(shape=(latent_dim,), name="generator_noise_input")
+
+    x = Dense(f[0] * filters * h_output * w_output, use_bias=False)(noise)
+    x = BatchNormalization()(x)
+    x = LeakyReLU(alpha=0.2)(x)
+    x = Reshape((h_output, w_output, 16 * filters))(x)
+
+    for i in range(1, 5):
+        x = deconv_block(x,
+            num_filters=f[i] * filters,
+            kernel_size=5,
+            strides=2,
+            bn=True
+        )
+
+    x = conv_block(x,
+        num_filters=3,  ## Change this to 1 for grayscale.
+        kernel_size=5,
+        strides=1,
+        activation=False
+    )
+    fake_output = Activation("tanh")(x)
+
+    return Model(noise, fake_output, name="generator")
+#---------------------------------------------------------------------------
+
+def build_discriminator():
+    f = [2**i for i in range(4)]
+    image_input = Input(shape=(IMG_H, IMG_W, IMG_C))
+    x = image_input
+    filters = 64
+    output_strides = 16
+    h_output = IMG_H // output_strides
+    w_output = IMG_W // output_strides
+
+    for i in range(0, 4):
+        x = conv_block(x, num_filters=f[i] * filters, kernel_size=5, strides=2)
+
+    x = Flatten()(x)
+    x = Dense(1)(x)
+
+    return Model(image_input, x, name="discriminator")
+
 def generate_video(my_batch_size, my_ephoc_size) :
     ## Hyperparameters
     #batch_size = 32
@@ -300,100 +420,121 @@ def generate_video(my_batch_size, my_ephoc_size) :
     images_path = glob(ipath +'/frames/*')
     isvideo = True
 
-    #d_model = build_discriminator()
-    #g_model = build_generator(latent_dim)
+    d_model = build_discriminator()
+    g_model = build_generator(latent_dim)
     if L == 'Archery':
-      Archery_d_model.load_weights(os.path.join(get_content_path(),"saved_model/Archery_d_model.h5"))
-      Archery_g_model.load_weights(os.path.join(get_content_path(),"saved_model/Archery_g_model.h5"))
-      gan = GAN(Archery_d_model, Archery_g_model, latent_dim)
+      d_model.load_weights(os.path.join(get_content_path(),"saved_model/Archery_d_model.h5"))
+      g_model.load_weights(os.path.join(get_content_path(),"saved_model/Archery_g_model.h5"))
     elif L == 'Basketball':
-      Basketball_d_model.load_weights(os.path.join(get_content_path(),"saved_model/Basketball_d_model.h5"))
-      Basketball_g_model.load_weights(os.path.join(get_content_path(),"saved_model/Basketball_g_model.h5"))
-      gan = GAN(Basketball_d_model, Basketball_g_model, latent_dim)
+      d_model.load_weights(os.path.join(get_content_path(),"saved_model/Basketball_d_model.h5"))
+      g_model.load_weights(os.path.join(get_content_path(),"saved_model/Basketball_g_model.h5"))
     elif L == 'Biking':
-      Biking_d_model.load_weights(os.path.join(get_content_path(),"saved_model/Biking_d_model.h5"))
-      Biking_g_model.load_weights(os.path.join(get_content_path(),"saved_model/Biking_g_model.h5"))
+      d_model.load_weights(os.path.join(get_content_path(),"saved_model/Biking_d_model.h5"))
+      g_model.load_weights(os.path.join(get_content_path(),"saved_model/Biking_g_model.h5"))
     elif L == 'CricketShot':
-      CricketShot_d_model.load_weights(os.path.join(get_content_path(),"saved_model/CricketShot_d_model.h5"))
-      CricketShot_g_model.load_weights(os.path.join(get_content_path(),"saved_model/CricketShot_g_model.h5"))
-      gan = GAN(CricketShot_d_model, CricketShot_g_model, latent_dim)
+      d_model.load_weights(os.path.join(get_content_path(),"saved_model/CricketShot_d_model.h5"))
+      g_model.load_weights(os.path.join(get_content_path(),"saved_model/CricketShot_g_model.h5"))
     elif L == 'HorseRace':
-      HorseRace_d_model.load_weights(os.path.join(get_content_path(),"saved_model/HorseRace_d_model.h5"))
-      HorseRace_g_model.load_weights(os.path.join(get_content_path(),"saved_model/HorseRace_g_model.h5"))
-      gan = GAN(HorseRace_d_model, HorseRace_g_model, latent_dim)
+      d_model.load_weights(os.path.join(get_content_path(),"saved_model/HorseRace_d_model.h5"))
+      g_model.load_weights(os.path.join(get_content_path(),"saved_model/HorseRace_g_model.h5"))
     elif L == 'IceDancing':
-      IceDancing_d_model.load_weights(os.path.join(get_content_path(),"saved_model/IceDancing_d_model.h5"))
-      IceDancing_g_model.load_weights(os.path.join(get_content_path(),"saved_model/IceDancing_g_model.h5"))
+      #d_model.load_weights(os.path.join(get_content_path(),"saved_model/IceDancing_d_model.h5"))
+      g_model.load_weights(os.path.join(get_content_path(),"saved_model/IceDancing_g_model.h5"))
+      #g_model.load_weights('https://drive.google.com/uc?export=view&id=1SIg9gRxzu1Lysh3upkQ8-F0hYGaO5CEE')
+      
     elif L == 'Kayaking':
-      Kayaking_d_model.load_weights(os.path.join(get_content_path(),"saved_model/Kayaking_d_model.h5"))
-      Kayaking_g_model.load_weights(os.path.join(get_content_path(),"saved_model/Kayaking_g_model.h5"))
-      gan = GAN(Kayaking_d_model, Kayaking_g_model, latent_dim)
+      d_model.load_weights(os.path.join(get_content_path(),"saved_model/Kayaking_d_model.h5"))
+      g_model.load_weights(os.path.join(get_content_path(),"saved_model/Kayaking_g_model.h5"))
     elif L == 'LongJump':
-      LongJump_d_model.load_weights(os.path.join(get_content_path(),"saved_model/LongJump_d_model.h5"))
-      LongJump_g_model.load_weights(os.path.join(get_content_path(),"saved_model/LongJump_g_model.h5"))
-      gan = GAN(LongJump_d_model, LongJump_g_model, latent_dim)
+      d_model.load_weights(os.path.join(get_content_path(),"saved_model/LongJump_d_model.h5"))
+      g_model.load_weights(os.path.join(get_content_path(),"saved_model/LongJump_g_model.h5"))
     elif L == 'MilitaryParade':
-      MilitaryParade_d_model.load_weights(os.path.join(get_content_path(),"saved_model/MilitaryParade_d_model.h5"))
-      MilitaryParade_g_model.load_weights(os.path.join(get_content_path(),"saved_model/MilitaryParade_g_model.h5"))
-      gan = GAN(MilitaryParade_d_model, MilitaryParade_g_model, latent_dim)
+      d_model.load_weights(os.path.join(get_content_path(),"saved_model/MilitaryParade_d_model.h5"))
+      g_model.load_weights(os.path.join(get_content_path(),"saved_model/MilitaryParade_g_model.h5"))
     elif L == 'PlayingTabla':
-      PlayingTabla_d_model.load_weights(os.path.join(get_content_path(),"saved_model/PlayingTabla_d_model.h5"))
-      PlayingTabla_g_model.load_weights(os.path.join(get_content_path(),"saved_model/PlayingTabla_g_model.h5"))
-      gan = GAN(PlayingTabla_d_model, PlayingTabla_g_model, latent_dim)
+      d_model.load_weights(os.path.join(get_content_path(),"saved_model/PlayingTabla_d_model.h5"))
+      g_model.load_weights(os.path.join(get_content_path(),"saved_model/PlayingTabla_g_model.h5"))
     else:
       print('Invalid action label')
 
+    #gan = GAN(d_model, g_model, latent_dim)
     #d_model.summary()
     #g_model.summary()
 
-    bce_loss_fn = tf.keras.losses.BinaryCrossentropy(from_logits=True, label_smoothing=0.1)
-    d_optimizer = tf.keras.optimizers.Adam(learning_rate=0.0002, beta_1=0.5)
-    g_optimizer = tf.keras.optimizers.Adam(learning_rate=0.0002, beta_1=0.5)
-    gan.compile(d_optimizer, g_optimizer, bce_loss_fn)
+    #bce_loss_fn = tf.keras.losses.BinaryCrossentropy(from_logits=True, label_smoothing=0.1)
+    #d_optimizer = tf.keras.optimizers.Adam(learning_rate=0.0002, beta_1=0.5)
+    #g_optimizer = tf.keras.optimizers.Adam(learning_rate=0.0002, beta_1=0.5)
+    #gan.compile(d_optimizer, g_optimizer, bce_loss_fn)
 
-    images_dataset = tf_dataset(images_path, batch_size)
+    #images_dataset = tf_dataset(images_path, batch_size)
 
-    for epoch in range(num_epochs):
-        gan.fit(images_dataset, epochs=1)
+    #for epoch in range(0):
+        #gan.fit(images_dataset, epochs=1)
         #if epoch == num_epochs-1:
           #g_model.save("/content/g_model.h5")
           #d_model.save("/content/d_model.h5")
 
-        n_samples = 25
-        noise = np.random.normal(size=(n_samples, latent_dim))
-        if L == 'Archery':
-          examples = Archery_g_model.predict(noise)
-          gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
-        elif L == 'Basketball':
-          examples = Basketball_g_model.predict(noise)
-          gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
-        elif L == 'Biking':
-          examples = Biking_g_model.predict(noise)
-          gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
-        elif L == 'CricketShot':
-          examples = CricketShot_g_model.predict(noise)
-          gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
-        elif L == 'HorseRace':
-          examples = HorseRace_g_model.predict(noise)
-          gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
-        elif L == 'IceDancing':
-          examples = IceDancing_g_model.predict(noise)
-          gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
-        elif L == 'LongJump':
-          examples = LongJump_g_model.predict(noise)
-          gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
-        elif L == 'MilitaryParade':
-          examples = MilitaryParade_g_model.predict(noise)
-          gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
-        elif L == 'PlayingTabla':
-          examples = PlayingTabla_g_model.predict(noise)
-          gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
-        else:
-          print('Invalid frames')
+    n_samples = 25
+    noise = np.random.normal(size=(n_samples, latent_dim))
+    if L == 'Archery':
+      examples = g_model.predict(noise)
+      gen_images = save_plot_new(examples)
+    elif L == 'Basketball':
+      examples = g_model.predict(noise)
+      gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
+    elif L == 'Biking':
+      examples = g_model.predict(noise)
+      gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
+    elif L == 'CricketShot':
+      examples = g_model.predict(noise)
+      gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
+    elif L == 'HorseRace':
+      examples = g_model.predict(noise)
+      gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
+    elif L == 'IceDancing':
+      examples = g_model.predict(noise)
+      save_examples(examples)
+      print("Printing the image --> using imshow")
+      #gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
+      #gen_images = save_plot_new(examples)
+    elif L == 'LongJump':
+      examples = g_model.predict(noise)
+      gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
+    elif L == 'MilitaryParade':
+      examples = g_model.predict(noise)
+      gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
+    elif L == 'PlayingTabla':
+      examples = g_model.predict(noise)
+      gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
+    else:
+      print('Invalid frames')
 
     #frame_directory = '/content/'
     frame_directory = get_content_path()
     output_video_path = os.path.join(get_content_path(), 'generated_video.avi')
-    #output_video_path = '/content/generated_video.avi'
-    gen_video(frame_directory, num_epochs, output_video_path, gen_images)
-    play_video(output_video_path)
+
+    #output_video_path = '/content/generated_video.avi'    
+    gen_video(output_video_path)
+    #play_video(output_video_path)
+    #st.video(output_video_path, )
+    st.write("output_video_path.......?" , output_video_path)
+
+    video_file = open(output_video_path, 'rb') #enter the filename with filepath
+    video_bytes = video_file.read() #reading the file
+    st.video(video_bytes) #displaying the video
+
+    #st.image(cv2.imread("C:/Users/Admin/iisc-capstone/iisc-group1-capstonetemp/pages/scripts/content/generated_images/"+"1.png")) 
+    
+    for i in os.listdir(os.path.join(get_content_path(), "generated_images")):
+      st.write(os.path.join(get_content_path(), "generated_images/") + i)
+      st.image(cv2.imread(os.path.join(get_content_path(), "generated_images/") + i)) 
+     
+
+    pyplot.imshow(examples[1])    
+    # input_val = int(st.text_input("Enter a number between 1 to 25", 1))    
+    # if st.button("Show image"):       
+    #    st.write("inside the button")
+    #    print("inside the button")
+    #    st.image(gen_images[input_val]) 
+    #    st.write("after the st.image")
+    #    print("after the st.image")
