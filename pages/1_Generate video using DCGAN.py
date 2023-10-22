@@ -58,7 +58,7 @@ with open(get_classified_lable_file_path(), 'r') as f:
     classified_label = f.read()
 st.write("The classified label:", classified_label)
 
-custom_customized_label = st.text_input("Enter the activity", help="Name of the activity", placeholder="Archery")
+custom_customized_label = st.text_input("Enter the activity", help="Name of the activity", placeholder="Enter the exact action class")
 if st.button('Generate Video'):
     if len(custom_customized_label) > 0:
         generate_video(custom_customized_label);

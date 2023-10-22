@@ -11,6 +11,8 @@ from tensorflow.keras.layers import *
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
 #from google.colab import drive
+import moviepy.editor as moviepy
+
 
 import cv2
 from moviepy.editor import VideoFileClip
@@ -483,21 +485,20 @@ def generate_video(classified_label):
         print('Invalid frames')
   
       save_examples(examples)
-      #gen_images = save_plot_new(examples)
 
-      #frame_directory = '/content/'
-      frame_directory = get_content_path()
-      output_video_path = os.path.join(get_content_path(), 'generated_video.avi')
+      output_video_path = os.path.join(get_content_path(),'generated_videos', 'generated_video.avi')
+      if is_debug() == True:
+        print("output_video_path.......?" , output_video_path)
 
-      #output_video_path = '/content/generated_video.avi'    
       gen_video(output_video_path)
-      #play_video(output_video_path)
-      #st.video(output_video_path, )
-      st.write("output_video_path.......?" , output_video_path)
 
-      video_file = open(output_video_path, 'rb') #enter the filename with filepath
+      clip = moviepy.VideoFileClip(output_video_path)
+      output_video_path_converted_mp4 = os.path.join(get_content_path(),'generated_videos', 'generated_video.mp4')
+      clip.write_videofile(output_video_path_converted_mp4)
+
+      video_file = open(output_video_path_converted_mp4, 'rb') #enter the filename with filepath
       video_bytes = video_file.read() #reading the file
-      st.video(video_bytes) #displaying the video
+      st.video(video_bytes, format='video/mp4', start_time=0) #displaying the video
 
       for i in os.listdir(os.path.join(get_content_path(), "generated_images")):
         st.write(os.path.join(get_content_path(), "generated_images/") + i)
