@@ -28,19 +28,23 @@ def get_app_config():
     return cfg
 
 def get_base_path():
-
+    base_path = Path.cwd()    
     if is_debug() == True:
         print("Base path --> ", base_path)
 
     return base_path
 
 def get_content_folder():
+    content_folder = cfg['folders']['content']
 
     if is_debug() == True:
         print("content_folder --> ", content_folder)
     return content_folder
 
 def get_content_pkl_path():
+    pkl_folder = cfg['folders']['pkl']
+    base_path = Path.cwd()    
+    content_folder = cfg['folders']['content']
 
     content_pkl_path = os.path.join(base_path, content_folder, pkl_folder)
     if is_debug() == True:
@@ -49,7 +53,7 @@ def get_content_pkl_path():
     return content_pkl_path
 
 def get_classified_lable_file_path():
-
+    content_folder = cfg['folders']['content']
     classified_label_file = os.path.join(content_folder, 'classified_label.txt')
     if is_debug() == True:
         print("classified_label_file --> ", classified_label_file)
@@ -59,8 +63,9 @@ def get_classified_lable_file_path():
 
 
 
-def get_content_path():
-
+def get_content_path(): #c:/ab/content
+    base_path = Path.cwd()    
+    content_folder = cfg['folders']['content']
     content_path = os.path.join(base_path, content_folder)
     if is_debug() == True:
         print("content_path --> ", content_path)

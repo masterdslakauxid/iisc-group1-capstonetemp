@@ -12,22 +12,19 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
 #from google.colab import drive
 
-#import cv2 //AK commented out.
+import cv2
 from moviepy.editor import VideoFileClip
 import matplotlib.pyplot as plt
 
 #Custom import
 from pages.scripts.content.util import get_base_path, get_content_folder, get_content_path
-from pages.scripts.content.util import get_content_pkl_path, get_classified_lable_file_path, is_debug
+from pages.scripts.content.util import get_content_pkl_path, get_classified_lable_file_path, is_debug, is_info
+
 
 #---------------------------------------------------------------------------
 
-#drive.mount('/content/drive', force_remount=True) DB
+#drive.mount('/content/drive', force_remount=True)
 # Load the value of 'classified_label' from Google Drive
-#with open('/content/drive/MyDrive/Phase-6_ML_Classifier_app_py/classified_label.txt', 'r') as f:
-#    classified_label = f.read()
-
-#New............................AK    
 with open(get_classified_lable_file_path(), 'r') as f:
     classified_label = f.read()
 
@@ -42,10 +39,12 @@ for action_folder in action_folders:
   action_class = action_folder.split('-')[1]
   if action_class == classified_label:
     L = action_class
+    if is_debug() == True:
+        print("Debug -->", L)
     break
 #---------------------------------------------------------------------------
-#AK commented out this
-# user_input1 = st.text_input("Enter the batch size","Your desired batch size ")
+
+# user_input1 = st.text_input("Enter the batch size","Your desired batch size ") # AK commented out
 # batch_size = int(user_input1)
 # user_input2 = st.text_input("Enter the no. of epochs","Your desired no. of epochs ")
 # num_epochs = int(user_input2)
@@ -120,29 +119,37 @@ class GAN(Model):
         return {"d1_loss": d1_loss, "d2_loss": d2_loss, "g_loss": g_loss}
 #---------------------------------------------------------------------------
 
-def save_plot(examples, epoch, n):
+def save_plot(examples, epoch, n, isvideo):
     gen_images = []
     examples = (examples + 1) / 2.0
     for i in range(n * n):
-        pyplot.subplot(n, n, i+1)
+        #pyplot.subplot(n, n, i+1)
         pyplot.axis("off")
         pyplot.imshow(examples[i])  ## pyplot.imshow(np.squeeze(examples[i], axis=-1))
-        gen_images.append(examples[i])
-    filename = f"/content/generated_plot_epoch-{epoch+1}.png"
-    pyplot.savefig(filename)
-    pyplot.close()
+        #qf = pyplot.imshow(examples[i])
+        #gen_images.append(examples[i])
+        if os.path.exists(f"/content/generated_plot_epoch-{epoch+1}/") == False:
+          os.makedirs(f"/content/generated_plot_epoch-{epoch+1}/")
+        filename = f"/content/generated_plot_epoch-{epoch+1}/'{i}.png"
+        pyplot.savefig(filename)
+        pyplot.close()
+        if isvideo:
+          cv2.imwrite(f"{i}.png", examples[i])
+          c = cv2.imread(f"{i}.png")
+          gen_images.append(c)
+          #c = cv2.cvtColor(c, cv2.COLOR_BGR2RGB)
+
     return gen_images
 #---------------------------------------------------------------------------
 
-def gen_video(frame_directory, num_epochs, output_video_path, gen_images):
-    frames = []
-
+def gen_video(frame_directory, num_epochs, output_video_path, frames):
     # Load 25 frames from the last image (based on num_epochs)
-    for i in range(25):
-        image_path = f'{frame_directory}/generated_plot_epoch-{num_epochs}.png'
+    #for i in range(25):
+        #image_path = f"/content/generated_plot_epoch-{n+1}/
+        #image_path = f'{frame_directory}/generated_plot_epoch-{num_epochs}.png'
         #img = cv2.imread(image_path)
-        img = cv2.imread(gen_images[i])
-        frames.append(img)
+        #img = cv2.imread(gen_images[i])
+        #frames.append(img)
 
     # Get the height and width of the frames
     height, width, layers = frames[0].shape
@@ -173,158 +180,165 @@ def play_video(video_path, fps=25, width=120, height=100, loop=True):
     video_clip.ipython_display(fps=fps, width=width, height=height, autoplay=True, loop=True, ctrls=True)
 #---------------------------------------------------------------------------
 
-if __name__ == "__main__":
-    if st.button('Generate Video'):
+# if __name__ == "__main__":
+#     if st.button('Generate Video'):
+#     ## Hyperparameters
+#     #batch_size = 32
+#     latent_dim = 128
+#     #num_epochs = 6
+#     #images_path = glob("data/*")
+#     images_path = glob('/content/drive/MyDrive/Phase-6_ML_Classifier_app_py/C-'+L+'/frames/*')
+#     isvideo = True
+
+#     #d_model = build_discriminator()
+#     #g_model = build_generator(latent_dim)
+#     if L == 'Archery':
+#       Archery_d_model.load_weights("/content/saved_model/Archery_d_model.h5")
+#       Archery_g_model.load_weights("/content/saved_model/Archery_g_model.h5")
+#       gan = GAN(Archery_d_model, Archery_g_model, latent_dim)
+#     elif L == 'Basketball':
+#       Basketball_d_model.load_weights("/content/saved_model/Basketball_d_model.h5")
+#       Basketball_g_model.load_weights("/content/saved_model/Basketball_g_model.h5")
+#       gan = GAN(Basketball_d_model, Basketball_g_model, latent_dim)
+#     elif L == 'Biking':
+#       Biking_d_model.load_weights("/content/saved_model/Biking_d_model.h5")
+#       Biking_g_model.load_weights("/content/saved_model/Biking_g_model.h5")
+#     elif L == 'CricketShot':
+#       CricketShot_d_model.load_weights("/content/saved_model/CricketShot_d_model.h5")
+#       CricketShot_g_model.load_weights("/content/saved_model/CricketShot_g_model.h5")
+#       gan = GAN(CricketShot_d_model, CricketShot_g_model, latent_dim)
+#     elif L == 'HorseRace':
+#       HorseRace_d_model.load_weights("/content/saved_model/HorseRace_d_model.h5")
+#       HorseRace_g_model.load_weights("/content/saved_model/HorseRace_g_model.h5")
+#       gan = GAN(HorseRace_d_model, HorseRace_g_model, latent_dim)
+#     elif L == 'IceDancing':
+#       IceDancing_d_model.load_weights("/content/saved_model/IceDancing_d_model.h5")
+#       IceDancing_g_model.load_weights("/content/saved_model/IceDancing_g_model.h5")
+#     elif L == 'Kayaking':
+#       Kayaking_d_model.load_weights("/content/saved_model/Kayaking_d_model.h5")
+#       Kayaking_g_model.load_weights("/content/saved_model/Kayaking_g_model.h5")
+#       gan = GAN(Kayaking_d_model, Kayaking_g_model, latent_dim)
+#     elif L == 'LongJump':
+#       LongJump_d_model.load_weights("/content/saved_model/LongJump_d_model.h5")
+#       LongJump_g_model.load_weights("/content/saved_model/LongJump_g_model.h5")
+#       gan = GAN(LongJump_d_model, LongJump_g_model, latent_dim)
+#     elif L == 'MilitaryParade':
+#       MilitaryParade_d_model.load_weights("/content/saved_model/MilitaryParade_d_model.h5")
+#       MilitaryParade_g_model.load_weights("/content/saved_model/MilitaryParade_g_model.h5")
+#       gan = GAN(MilitaryParade_d_model, MilitaryParade_g_model, latent_dim)
+#     elif L == 'PlayingTabla':
+#       PlayingTabla_d_model.load_weights("/content/saved_model/PlayingTabla_d_model.h5")
+#       PlayingTabla_g_model.load_weights("/content/saved_model/PlayingTabla_g_model.h5")
+#       gan = GAN(PlayingTabla_d_model, PlayingTabla_g_model, latent_dim)
+#     else:
+#       print('Invalid action label')
+
+#     #d_model.summary()
+#     #g_model.summary()
+
+#     bce_loss_fn = tf.keras.losses.BinaryCrossentropy(from_logits=True, label_smoothing=0.1)
+#     d_optimizer = tf.keras.optimizers.Adam(learning_rate=0.0002, beta_1=0.5)
+#     g_optimizer = tf.keras.optimizers.Adam(learning_rate=0.0002, beta_1=0.5)
+#     gan.compile(d_optimizer, g_optimizer, bce_loss_fn)
+
+#     images_dataset = tf_dataset(images_path, batch_size)
+
+#     for epoch in range(num_epochs):
+#         gan.fit(images_dataset, epochs=1)
+#         #if epoch == num_epochs-1:
+#           #g_model.save("/content/g_model.h5")
+#           #d_model.save("/content/d_model.h5")
+
+#         n_samples = 25
+#         noise = np.random.normal(size=(n_samples, latent_dim))
+#         if L == 'Archery':
+#           examples = Archery_g_model.predict(noise)
+#           gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
+#         elif L == 'Basketball':
+#           examples = Basketball_g_model.predict(noise)
+#           gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
+#         elif L == 'Biking':
+#           examples = Biking_g_model.predict(noise)
+#           gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
+#         elif L == 'CricketShot':
+#           examples = CricketShot_g_model.predict(noise)
+#           gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
+#         elif L == 'HorseRace':
+#           examples = HorseRace_g_model.predict(noise)
+#           gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
+#         elif L == 'IceDancing':
+#           examples = IceDancing_g_model.predict(noise)
+#           gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
+#         elif L == 'LongJump':
+#           examples = LongJump_g_model.predict(noise)
+#           gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
+#         elif L == 'MilitaryParade':
+#           examples = MilitaryParade_g_model.predict(noise)
+#           gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
+#         elif L == 'PlayingTabla':
+#           examples = PlayingTabla_g_model.predict(noise)
+#           gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
+#         else:
+#           print('Invalid frames')
+
+#     frame_directory = '/content/'
+#     output_video_path = '/content/generated_video.avi'
+#     gen_video(frame_directory, num_epochs, output_video_path, gen_images)
+#     play_video(output_video_path)
+
+def generate_video(my_batch_size, my_ephoc_size) :
     ## Hyperparameters
     #batch_size = 32
-      latent_dim = 128
-    #num_epochs = 6
-    #images_path = glob("data/*")
-    images_path = glob('/content/drive/MyDrive/Phase-6_ML_Classifier_app_py/C-'+L+'/frames/*')
-
-    #d_model = build_discriminator()
-    #g_model = build_generator(latent_dim)
-    if L == 'Archery':
-      Archery_d_model.load_weights("/content/saved_model/Archery_d_model.h5")
-      Archery_g_model.load_weights("/content/saved_model/Archery_g_model.h5")
-      gan = GAN(Archery_d_model, Archery_g_model, latent_dim)
-    elif L == 'Basketball':
-      Basketball_d_model.load_weights("/content/saved_model/Basketball_d_model.h5")
-      Basketball_g_model.load_weights("/content/saved_model/Basketball_g_model.h5")
-      gan = GAN(Basketball_d_model, Basketball_g_model, latent_dim)
-    elif L == 'Biking':
-      Biking_d_model.load_weights("/content/saved_model/Biking_d_model.h5")
-      Biking_g_model.load_weights("/content/saved_model/Biking_g_model.h5")
-    elif L == 'CricketShot':
-      CricketShot_d_model.load_weights("/content/saved_model/CricketShot_d_model.h5")
-      CricketShot_g_model.load_weights("/content/saved_model/CricketShot_g_model.h5")
-      gan = GAN(CricketShot_d_model, CricketShot_g_model, latent_dim)
-    elif L == 'HorseRace':
-      HorseRace_d_model.load_weights("/content/saved_model/HorseRace_d_model.h5")
-      HorseRace_g_model.load_weights("/content/saved_model/HorseRace_g_model.h5")
-      gan = GAN(HorseRace_d_model, HorseRace_g_model, latent_dim)
-    elif L == 'IceDancing':
-      IceDancing_d_model.load_weights("/content/saved_model/IceDancing_d_model.h5")
-      IceDancing_g_model.load_weights("/content/saved_model/IceDancing_g_model.h5")
-    elif L == 'Kayaking':
-      Kayaking_d_model.load_weights("/content/saved_model/Kayaking_d_model.h5")
-      Kayaking_g_model.load_weights("/content/saved_model/Kayaking_g_model.h5")
-      gan = GAN(Kayaking_d_model, Kayaking_g_model, latent_dim)
-    elif L == 'LongJump':
-      LongJump_d_model.load_weights("/content/saved_model/LongJump_d_model.h5")
-      LongJump_g_model.load_weights("/content/saved_model/LongJump_g_model.h5")
-      gan = GAN(LongJump_d_model, LongJump_g_model, latent_dim)
-    elif L == 'MilitaryParade':
-      MilitaryParade_d_model.load_weights("/content/saved_model/MilitaryParade_d_model.h5")
-      MilitaryParade_g_model.load_weights("/content/saved_model/MilitaryParade_g_model.h5")
-      gan = GAN(MilitaryParade_d_model, MilitaryParade_g_model, latent_dim)
-    elif L == 'PlayingTabla':
-      PlayingTabla_d_model.load_weights("/content/saved_model/PlayingTabla_d_model.h5")
-      PlayingTabla_g_model.load_weights("/content/saved_model/PlayingTabla_g_model.h5")
-      gan = GAN(PlayingTabla_d_model, PlayingTabla_g_model, latent_dim)
-    else:
-      print('Invalid action label')
-
-    #d_model.summary()
-    #g_model.summary()
-
-    bce_loss_fn = tf.keras.losses.BinaryCrossentropy(from_logits=True, label_smoothing=0.1)
-    d_optimizer = tf.keras.optimizers.Adam(learning_rate=0.0002, beta_1=0.5)
-    g_optimizer = tf.keras.optimizers.Adam(learning_rate=0.0002, beta_1=0.5)
-    gan.compile(d_optimizer, g_optimizer, bce_loss_fn)
-
-    images_dataset = tf_dataset(images_path, batch_size)
-
-    for epoch in range(num_epochs):
-        gan.fit(images_dataset, epochs=1)
-        #if epoch == num_epochs-1:
-          #g_model.save("/content/g_model.h5")
-          #d_model.save("/content/d_model.h5")
-
-        n_samples = 25
-        noise = np.random.normal(size=(n_samples, latent_dim))
-        if L == 'Archery':
-          examples = Archery_g_model.predict(noise)
-          save_plot(examples, epoch, int(np.sqrt(n_samples)))
-        elif L == 'Basketball':
-          examples = Basketball_g_model.predict(noise)
-          save_plot(examples, epoch, int(np.sqrt(n_samples)))
-        elif L == 'Biking':
-          examples = Biking_g_model.predict(noise)
-          save_plot(examples, epoch, int(np.sqrt(n_samples)))
-        elif L == 'CricketShot':
-          examples = CricketShot_g_model.predict(noise)
-          save_plot(examples, epoch, int(np.sqrt(n_samples)))
-        elif L == 'HorseRace':
-          examples = HorseRace_g_model.predict(noise)
-          save_plot(examples, epoch, int(np.sqrt(n_samples)))
-        elif L == 'IceDancing':
-          examples = IceDancing_g_model.predict(noise)
-          save_plot(examples, epoch, int(np.sqrt(n_samples)))
-        elif L == 'LongJump':
-          examples = LongJump_g_model.predict(noise)
-          save_plot(examples, epoch, int(np.sqrt(n_samples)))
-        elif L == 'MilitaryParade':
-          examples = MilitaryParade_g_model.predict(noise)
-          save_plot(examples, epoch, int(np.sqrt(n_samples)))
-        elif L == 'PlayingTabla':
-          examples = PlayingTabla_g_model.predict(noise)
-          save_plot(examples, epoch, int(np.sqrt(n_samples)))
-        else:
-          print('Invalid frames')
-
-    frame_directory = '/content/'
-    output_video_path = '/content/generated_video.avi'
-    gen_video(frame_directory, num_epochs, output_video_path)
-    play_video(output_video_path)
-
-def generate_video() :
-    ## Hyperparameters
-    #batch_size = 32
+    batch_size = my_batch_size
     latent_dim = 128
+    num_epochs = my_ephoc_size
     #num_epochs = 6
     #images_path = glob("data/*")
-    images_path = glob('/content/drive/MyDrive/Phase-6_ML_Classifier_app_py/C-'+L+'/frames/*')
+    if is_info()== True:
+        print("INFO get_content_path() in app2.py --> ", get_content_path())
+    ipath =  os.path.join(get_content_path(),'drive/MyDrive/Phase-6_ML_Classifier_app_py/C-'+L)
+    images_path = glob(ipath +'/frames/*')
+    isvideo = True
 
     #d_model = build_discriminator()
     #g_model = build_generator(latent_dim)
     if L == 'Archery':
-      Archery_d_model.load_weights("/content/saved_model/Archery_d_model.h5")
-      Archery_g_model.load_weights("/content/saved_model/Archery_g_model.h5")
+      Archery_d_model.load_weights(os.path.join(get_content_path(),"saved_model/Archery_d_model.h5"))
+      Archery_g_model.load_weights(os.path.join(get_content_path(),"saved_model/Archery_g_model.h5"))
       gan = GAN(Archery_d_model, Archery_g_model, latent_dim)
     elif L == 'Basketball':
-      Basketball_d_model.load_weights("/content/saved_model/Basketball_d_model.h5")
-      Basketball_g_model.load_weights("/content/saved_model/Basketball_g_model.h5")
+      Basketball_d_model.load_weights(os.path.join(get_content_path(),"saved_model/Basketball_d_model.h5"))
+      Basketball_g_model.load_weights(os.path.join(get_content_path(),"saved_model/Basketball_g_model.h5"))
       gan = GAN(Basketball_d_model, Basketball_g_model, latent_dim)
     elif L == 'Biking':
-      Biking_d_model.load_weights("/content/saved_model/Biking_d_model.h5")
-      Biking_g_model.load_weights("/content/saved_model/Biking_g_model.h5")
+      Biking_d_model.load_weights(os.path.join(get_content_path(),"saved_model/Biking_d_model.h5"))
+      Biking_g_model.load_weights(os.path.join(get_content_path(),"saved_model/Biking_g_model.h5"))
     elif L == 'CricketShot':
-      CricketShot_d_model.load_weights("/content/saved_model/CricketShot_d_model.h5")
-      CricketShot_g_model.load_weights("/content/saved_model/CricketShot_g_model.h5")
+      CricketShot_d_model.load_weights(os.path.join(get_content_path(),"saved_model/CricketShot_d_model.h5"))
+      CricketShot_g_model.load_weights(os.path.join(get_content_path(),"saved_model/CricketShot_g_model.h5"))
       gan = GAN(CricketShot_d_model, CricketShot_g_model, latent_dim)
     elif L == 'HorseRace':
-      HorseRace_d_model.load_weights("/content/saved_model/HorseRace_d_model.h5")
-      HorseRace_g_model.load_weights("/content/saved_model/HorseRace_g_model.h5")
+      HorseRace_d_model.load_weights(os.path.join(get_content_path(),"saved_model/HorseRace_d_model.h5"))
+      HorseRace_g_model.load_weights(os.path.join(get_content_path(),"saved_model/HorseRace_g_model.h5"))
       gan = GAN(HorseRace_d_model, HorseRace_g_model, latent_dim)
     elif L == 'IceDancing':
-      IceDancing_d_model.load_weights("/content/saved_model/IceDancing_d_model.h5")
-      IceDancing_g_model.load_weights("/content/saved_model/IceDancing_g_model.h5")
+      IceDancing_d_model.load_weights(os.path.join(get_content_path(),"saved_model/IceDancing_d_model.h5"))
+      IceDancing_g_model.load_weights(os.path.join(get_content_path(),"saved_model/IceDancing_g_model.h5"))
     elif L == 'Kayaking':
-      Kayaking_d_model.load_weights("/content/saved_model/Kayaking_d_model.h5")
-      Kayaking_g_model.load_weights("/content/saved_model/Kayaking_g_model.h5")
+      Kayaking_d_model.load_weights(os.path.join(get_content_path(),"saved_model/Kayaking_d_model.h5"))
+      Kayaking_g_model.load_weights(os.path.join(get_content_path(),"saved_model/Kayaking_g_model.h5"))
       gan = GAN(Kayaking_d_model, Kayaking_g_model, latent_dim)
     elif L == 'LongJump':
-      LongJump_d_model.load_weights("/content/saved_model/LongJump_d_model.h5")
-      LongJump_g_model.load_weights("/content/saved_model/LongJump_g_model.h5")
+      LongJump_d_model.load_weights(os.path.join(get_content_path(),"saved_model/LongJump_d_model.h5"))
+      LongJump_g_model.load_weights(os.path.join(get_content_path(),"saved_model/LongJump_g_model.h5"))
       gan = GAN(LongJump_d_model, LongJump_g_model, latent_dim)
     elif L == 'MilitaryParade':
-      MilitaryParade_d_model.load_weights("/content/saved_model/MilitaryParade_d_model.h5")
-      MilitaryParade_g_model.load_weights("/content/saved_model/MilitaryParade_g_model.h5")
+      MilitaryParade_d_model.load_weights(os.path.join(get_content_path(),"saved_model/MilitaryParade_d_model.h5"))
+      MilitaryParade_g_model.load_weights(os.path.join(get_content_path(),"saved_model/MilitaryParade_g_model.h5"))
       gan = GAN(MilitaryParade_d_model, MilitaryParade_g_model, latent_dim)
     elif L == 'PlayingTabla':
-      PlayingTabla_d_model.load_weights("/content/saved_model/PlayingTabla_d_model.h5")
-      PlayingTabla_g_model.load_weights("/content/saved_model/PlayingTabla_g_model.h5")
+      PlayingTabla_d_model.load_weights(os.path.join(get_content_path(),"saved_model/PlayingTabla_d_model.h5"))
+      PlayingTabla_g_model.load_weights(os.path.join(get_content_path(),"saved_model/PlayingTabla_g_model.h5"))
       gan = GAN(PlayingTabla_d_model, PlayingTabla_g_model, latent_dim)
     else:
       print('Invalid action label')
@@ -349,35 +363,37 @@ def generate_video() :
         noise = np.random.normal(size=(n_samples, latent_dim))
         if L == 'Archery':
           examples = Archery_g_model.predict(noise)
-          save_plot(examples, epoch, int(np.sqrt(n_samples)))
+          gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
         elif L == 'Basketball':
           examples = Basketball_g_model.predict(noise)
-          save_plot(examples, epoch, int(np.sqrt(n_samples)))
+          gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
         elif L == 'Biking':
           examples = Biking_g_model.predict(noise)
-          save_plot(examples, epoch, int(np.sqrt(n_samples)))
+          gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
         elif L == 'CricketShot':
           examples = CricketShot_g_model.predict(noise)
-          save_plot(examples, epoch, int(np.sqrt(n_samples)))
+          gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
         elif L == 'HorseRace':
           examples = HorseRace_g_model.predict(noise)
-          save_plot(examples, epoch, int(np.sqrt(n_samples)))
+          gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
         elif L == 'IceDancing':
           examples = IceDancing_g_model.predict(noise)
-          save_plot(examples, epoch, int(np.sqrt(n_samples)))
+          gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
         elif L == 'LongJump':
           examples = LongJump_g_model.predict(noise)
-          save_plot(examples, epoch, int(np.sqrt(n_samples)))
+          gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
         elif L == 'MilitaryParade':
           examples = MilitaryParade_g_model.predict(noise)
-          save_plot(examples, epoch, int(np.sqrt(n_samples)))
+          gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
         elif L == 'PlayingTabla':
           examples = PlayingTabla_g_model.predict(noise)
-          save_plot(examples, epoch, int(np.sqrt(n_samples)))
+          gen_images = save_plot(examples, epoch, int(np.sqrt(n_samples)), isvideo)
         else:
           print('Invalid frames')
 
-    frame_directory = '/content/'
-    output_video_path = '/content/generated_video.avi'
-    gen_video(frame_directory, num_epochs, output_video_path)
+    #frame_directory = '/content/'
+    frame_directory = get_content_path()
+    output_video_path = os.path.join(get_content_path(), 'generated_video.avi')
+    #output_video_path = '/content/generated_video.avi'
+    gen_video(frame_directory, num_epochs, output_video_path, gen_images)
     play_video(output_video_path)

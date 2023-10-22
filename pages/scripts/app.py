@@ -3,11 +3,11 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import *
 import re
 import string
-from pyspark.ml.feature import VectorAssembler
+#from pyspark.ml.feature import VectorAssembler
 from pyspark.ml.feature import CountVectorizer
 from pyspark.ml.classification import NaiveBayes
 from pyspark.sql.types import ArrayType, StringType
-from handyspark import *
+#from handyspark import *
 
 import nltk
 nltk.download('punkt')
@@ -18,7 +18,7 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 from pyspark.sql.functions import udf
-import handyspark as hsp
+#import handyspark as hsp
 import matplotlib.pyplot as plt
 from pyspark.sql.types import IntegerType
 from nltk.corpus import wordnet

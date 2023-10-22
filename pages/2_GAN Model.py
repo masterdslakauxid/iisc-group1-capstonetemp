@@ -1,5 +1,5 @@
 import streamlit as st
-from pages.scripts.app2 import load_image
+from pages.scripts.app2 import load_image, generate_video
 from pages.scripts.content.util import get_classified_lable_file_path
 
 
@@ -15,7 +15,8 @@ user_input1 = st.text_input("Enter the batch size", help="The recommended size i
 user_input2 = st.text_input("Enter the no. of epochs", help="The recommended size is 1 or 2 for testing", placeholder="1" )
 
 valid_inputs = True
-
+batch_size = 0
+num_epochs = 0
 if st.button('Generate Video'):
     if len(user_input1) > 0: 
         batch_size = int(user_input1)
@@ -36,5 +37,5 @@ if st.button('Generate Video'):
         st.error("Enter the epoch size")
 
     if valid_inputs == True:
-        load_image()
+        generate_video(batch_size, num_epochs)
         st.write("Video link")
