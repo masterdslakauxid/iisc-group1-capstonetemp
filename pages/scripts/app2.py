@@ -181,7 +181,7 @@ def save_plot(examples, epoch, n, isvideo):
 
 def gen_video(output_video_path):
     #frames =  [cv2.imread(os.path.join(get_content_path(), "generated_images/") + i) for i in os.listdir("C:/Users/Admin/iisc-capstone/iisc-group1-capstonetemp/pages/scripts/content/generated_images")]
-    frames =  [cv2.imread(i) for i in os.listdir(os.path.join(get_content_path(), "generated_images"))]
+    frames =  [cv2.imread(os.path.join(get_content_path(), "generated_images/") + i) for i in os.listdir(os.path.join(get_content_path(), "generated_images"))]
 
     # cv2.imshow(frames[0])
     
