@@ -13,6 +13,7 @@ st.write("The classified label:", classified_label)
 
 user_input1 = st.text_input("Enter the batch size", help="The recommended size is 1 or 2 for testing", placeholder="1")
 user_input2 = st.text_input("Enter the no. of epochs", help="The recommended size is 1 or 2 for testing", placeholder="1" )
+user_input2 = st.text_input("Enter the activity", help="Name of the activity", placeholder="Archery" )
 
 valid_inputs = True
 batch_size = 0
@@ -39,3 +40,4 @@ if st.button('Generate Video'):
     if valid_inputs == True:
         generate_video(batch_size, num_epochs)
         st.write("Video link")
+

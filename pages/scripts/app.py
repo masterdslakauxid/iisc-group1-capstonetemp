@@ -252,9 +252,10 @@ requiredTarget = df_final['LabelEncoded_Action_labels'].values
 Tfidf_word_vectorizer = TfidfVectorizer(ngram_range = (1,3)) # sublinear_tf=True, stop_words='english'
 X_tfidf = Tfidf_word_vectorizer.fit_transform(requiredFeature)
 
-print ('Tfidf_train:', X_tfidf.shape)
-print ("Text converted to Tfidf Feature vectors shown below:\n")
-print(X_tfidf)
+if is_debug() == True:
+    print ('Tfidf_train:', X_tfidf.shape)
+    print ("Text converted to Tfidf Feature vectors shown below:\n")
+    print(X_tfidf)
 #------------------------------------------------------
 
 # YOUR CODE HERE
@@ -265,7 +266,6 @@ print (y_train.shape)
 print (y_test.shape)
 #------------------------------------------------------
 
-st.write("Loading the 'best_rf_classifier'..")
 import joblib
 import os
 
@@ -286,20 +286,28 @@ if is_debug() == True:
     print(" loaded_xgb_classifier_file path -> ", loaded_xgb_classifier_file)
     print(" loaded_lgb_classifier_file path ->", loaded_lgb_classifier_file)
     print(" classified_label_file path ->", get_classified_lable_file_path())
-    
+
+
+if is_debug()==True:
+    print("Loading the 'best_rf_classifier'..")
+
 # Load the saved model
 loaded_rf_classifier = joblib.load(best_rf_classifier_file)
 
 #------------------------------------------------------
 
-st.write("Loading the 'best_xgb_classifier'..")
+if is_debug()==True:
+    print("Loading the 'best_xgb_classifier'..")
+
 import joblib
 
 # Load the saved model
 loaded_xgb_classifier = joblib.load(loaded_xgb_classifier_file)
 #------------------------------------------------------
 
-st.write("Loading the 'best_lgb_classifier'..")
+if is_debug()==True:
+    print("Loading the 'best_lgb_classifier'..")
+
 import joblib
 
 # Load the saved model

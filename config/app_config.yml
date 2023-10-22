@@ -8,7 +8,8 @@ file_names:
 debug: 
     error: True        
     info: True
-    debug: True
+    debug: False
+    config: False
     
 
 #other:
