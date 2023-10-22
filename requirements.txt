@@ -20,3 +20,4 @@ mxnet-mkl==1.6.0
 nltk
 openpyxl
 opencv-python
+pyyaml
