@@ -19,3 +19,4 @@ nltk
 openpyxl
 pyyaml
 opencv-python-headless
+seaborn
