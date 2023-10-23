@@ -1,8 +1,19 @@
 import streamlit as st
+import time
 
 from pages.scripts.app import predict_resume_with_rf, predict_resume_with_xgb, predict_resume_with_lgb 
 from pages.scripts.content.util import get_classified_lable_file_path
 from pages.scripts.app2 import generate_video
+
+progress_text = "Loading in progress. Please wait."
+my_bar = st.progress(0, text=progress_text)
+
+for percent_complete in range(100):
+    time.sleep(0.01)
+    my_bar.progress(percent_complete + 1, text=progress_text)
+time.sleep(1)
+my_bar.empty()
+
 
 tabs_font_css = """
 <style>
