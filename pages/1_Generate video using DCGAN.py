@@ -4,6 +4,15 @@ from pages.scripts.app import predict_resume_with_rf, predict_resume_with_xgb, p
 from pages.scripts.content.util import get_classified_lable_file_path
 from pages.scripts.app2 import generate_video
 
+tabs_font_css = """
+<style>
+div[class*="stTextInput"] label p {
+  font-size: 1rem;
+  color: black;
+}
+</style>
+"""
+st.write(tabs_font_css, unsafe_allow_html=True)
 st.header("Generate video using DCGAN")
 st.subheader("Executing Text Classification")
 user_input = st.text_input("#1 Enter the Activity description", help="A man playing archery in front of the garage in the morning", placeholder="A person playing Archery or A person playing football" )
@@ -65,11 +74,14 @@ with st.container():
 
     with st.expander("Advanced options"):    
         custom_customized_label = st.text_input("Enter the activity", help="Name of the activity", placeholder="Enter the exact action class")
+       # show_video = st.checkbox('Show video')
+        show_images = st.checkbox('Show images')
+
     if st.button('Generate Video'):
         if len(custom_customized_label) > 0:
-            generate_video(custom_customized_label)
+            generate_video(custom_customized_label, show_images)
         else:
-            generate_video(classified_label)
+            generate_video(classified_label, show_images)
             
 
 
