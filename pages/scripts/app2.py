@@ -1,3 +1,4 @@
+import sys
 import streamlit as st
 
 import os
@@ -19,9 +20,7 @@ from moviepy.editor import VideoFileClip
 import matplotlib.pyplot as plt
 
 #Custom import
-from pages.scripts.content.util import get_base_path, get_content_folder, get_content_path
-from pages.scripts.content.util import get_content_pkl_path, get_classified_lable_file_path, is_debug, is_info
-
+from pages.scripts.content.util import get_content_path, is_debug, is_info
 
 #---------------------------------------------------------------------------
 IMG_H = 64
@@ -405,107 +404,212 @@ def build_discriminator():
     return Model(image_input, x, name="discriminator")
 #---------------------------------------------------------------------------
 
+
+actions = {
+"Archery":  {
+    "d_model_file" : "saved_model/Archery_d_model.h5",
+    "g_model_file" : "saved_model/Archery_g_model.h5"
+  },
+# "Basketball": "Mustang",
+# "Biking": 1964,
+# "CricketShot": 
+# "HorseRace":
+# "IceDancing" : 
+# "Kayaking" :
+# "LongJump": 
+# "MilitaryParade":
+"PlayingTabla": {
+    "d_model_file" : "saved_model/PlayingTabla_d_model.h5",
+    "g_model_file" : "saved_model/PlayingTabla_g_model.h5"
+  }
+}
+
+def exit_program():
+    print("Exiting the program...")
+    sys.exit(0)
+
 def generate_video(classified_label):
-    L = load_classified_label(classified_label)
-    if is_debug() == True:
-       print(" what is set in  L ", L)
-    ## Hyperparameters
-    #batch_size = 32
-    #batch_size = my_batch_size
+    
+    examples =""
+    n_samples = 25
     latent_dim = 128
-    #num_epochs = my_ephoc_size
-    #num_epochs = 6
-    #images_path = glob("data/*")
-    if is_info()== True:
-        print("INFO get_content_path() in app2.py --> ", get_content_path())
-    ipath =  os.path.join(get_content_path(),'drive/MyDrive/Phase-6_ML_Classifier_app_py/C-'+L)
-    images_path = glob(ipath +'/frames/*')
-    isvideo = True
+    noise = np.random.normal(size=(n_samples, latent_dim))
 
     d_model = build_discriminator()
     g_model = build_generator(latent_dim)
-    if L == 'Archery':
-      d_model.load_weights(os.path.join(get_content_path(),"saved_model/Archery_d_model.h5"))
-      g_model.load_weights(os.path.join(get_content_path(),"saved_model/Archery_g_model.h5"))
-    elif L == 'Basketball':
-      d_model.load_weights(os.path.join(get_content_path(),"saved_model/Basketball_d_model.h5"))
-      g_model.load_weights(os.path.join(get_content_path(),"saved_model/Basketball_g_model.h5"))
-    elif L == 'Biking':
-      d_model.load_weights(os.path.join(get_content_path(),"saved_model/Biking_d_model.h5"))
-      g_model.load_weights(os.path.join(get_content_path(),"saved_model/Biking_g_model.h5"))
-    elif L == 'CricketShot':
-      d_model.load_weights(os.path.join(get_content_path(),"saved_model/CricketShot_d_model.h5"))
-      g_model.load_weights(os.path.join(get_content_path(),"saved_model/CricketShot_g_model.h5"))
-    elif L == 'HorseRace':
-      d_model.load_weights(os.path.join(get_content_path(),"saved_model/HorseRace_d_model.h5"))
-      g_model.load_weights(os.path.join(get_content_path(),"saved_model/HorseRace_g_model.h5"))
-    elif L == 'IceDancing':
-      #d_model.load_weights(os.path.join(get_content_path(),"saved_model/IceDancing_d_model.h5"))
-      g_model.load_weights(os.path.join(get_content_path(),"saved_model/IceDancing_g_model.h5"))
-      #g_model.load_weights('https://drive.google.com/uc?export=view&id=1SIg9gRxzu1Lysh3upkQ8-F0hYGaO5CEE')
-      
-    elif L == 'Kayaking':
-      d_model.load_weights(os.path.join(get_content_path(),"saved_model/Kayaking_d_model.h5"))
-      g_model.load_weights(os.path.join(get_content_path(),"saved_model/Kayaking_g_model.h5"))
-    elif L == 'LongJump':
-      d_model.load_weights(os.path.join(get_content_path(),"saved_model/LongJump_d_model.h5"))
-      g_model.load_weights(os.path.join(get_content_path(),"saved_model/LongJump_g_model.h5"))
-    elif L == 'MilitaryParade':
-      d_model.load_weights(os.path.join(get_content_path(),"saved_model/MilitaryParade_d_model.h5"))
-      g_model.load_weights(os.path.join(get_content_path(),"saved_model/MilitaryParade_g_model.h5"))
-    elif L == 'PlayingTabla':
-      d_model.load_weights(os.path.join(get_content_path(),"saved_model/PlayingTabla_d_model.h5"))
-      g_model.load_weights(os.path.join(get_content_path(),"saved_model/PlayingTabla_g_model.h5"))
-    else:
-      L = "Invalid"      
 
-    if L != "Invalid":
-      examples =""
-      n_samples = 25
-      noise = np.random.normal(size=(n_samples, latent_dim))
-      if L == 'Archery':
-        examples = g_model.predict(noise)
-      elif L == 'Basketball':
-        examples = g_model.predict(noise)
-      elif L == 'Biking':
-        examples = g_model.predict(noise)
-      elif L == 'CricketShot':
-        examples = g_model.predict(noise)
-      elif L == 'HorseRace':
-        examples = g_model.predict(noise)
-      elif L == 'IceDancing':
-        examples = g_model.predict(noise)
-      elif L == 'LongJump':
-        examples = g_model.predict(noise)
-      elif L == 'MilitaryParade':
-        examples = g_model.predict(noise)
-      elif L == 'PlayingTabla':
-        examples = g_model.predict(noise)
+    L = load_classified_label(classified_label)
+    if L in actions:
+      d_model_file = os.path.join(get_content_path(), actions[L]["d_model_file"])
+      g_model_file = os.path.join(get_content_path(), actions[L]["g_model_file"])
+
+      if os.path.exists(d_model_file) == True:
+        d_model.load_weights(d_model_file)
       else:
-        print('Invalid frames')
-  
-      save_examples(examples)
+        st.write(L + " d_model_file does not exit")
+        exit_program()
 
-      output_video_path = os.path.join(get_content_path(),'generated_videos', 'generated_video.avi')
-      if is_debug() == True:
-        print("output_video_path.......?" , output_video_path)
+      if os.path.exists(g_model_file) == True:
+        g_model.load_weights(g_model_file)
+        examples = g_model.predict(noise)
+        save_examples(examples)
 
-      gen_video(output_video_path)
+        #Generate the video in avi
+        output_video_path = os.path.join(get_content_path(),'generated_videos', 'generated_video.avi')
+        if is_debug() == True:
+          print("output_video_path.......?" , output_video_path)
 
-      clip = moviepy.VideoFileClip(output_video_path)
-      output_video_path_converted_mp4 = os.path.join(get_content_path(),'generated_videos', 'generated_video.mp4')
-      clip.write_videofile(output_video_path_converted_mp4)
+        gen_video(output_video_path)
 
-      video_file = open(output_video_path_converted_mp4, 'rb') #enter the filename with filepath
-      video_bytes = video_file.read() #reading the file
-      st.video(video_bytes, format='video/mp4', start_time=0) #displaying the video
+        #Convert avi to mp4
+        clip = moviepy.VideoFileClip(output_video_path)
+        output_video_path_converted_mp4 = os.path.join(get_content_path(),'generated_videos', 'generated_video.mp4')
+        clip.write_videofile(output_video_path_converted_mp4)
 
-      for i in os.listdir(os.path.join(get_content_path(), "generated_images")):
-        st.write(os.path.join(get_content_path(), "generated_images/") + i)
-        st.image(cv2.imread(os.path.join(get_content_path(), "generated_images/") + i))   
+        with st.expander("Generated video"): 
+          #Show the video
+          video_file = open(output_video_path_converted_mp4, 'rb') #enter the filename with filepath
+          video_bytes = video_file.read() #reading the file
+          st.video(video_bytes, format='video/mp4', start_time=0) #displaying the video
+
+        with st.expander("Generated images"): 
+          for i in os.listdir(os.path.join(get_content_path(), "generated_images")):
+            st.write(os.path.join(get_content_path(), "generated_images/") + i)
+            st.image(cv2.imread(os.path.join(get_content_path(), "generated_images/") + i))   
+      else:
+        st.write(L + " g_model_file does not exit")
+        exit_program()
     else:
-       st.error("No Valid Labels identified. Rephrase the search") 
-       if is_debug() == True:
-          print("No Valid Labels identified. Rephrase the search") 
+       st.write("No trainned model is found for " + L)
+       exit_program()
+      
+
+
+
+# def generate_video_old(classified_label):
+    
+#     L = load_classified_label(classified_label)
+  
+#     if is_debug() == True:
+#        print(" what is set in  L ", L)
+#     ## Hyperparameters
+#     #batch_size = 32
+#     #batch_size = my_batch_size
+#     latent_dim = 128
+#     #num_epochs = my_ephoc_size
+#     #num_epochs = 6
+#     #images_path = glob("data/*")
+#     if is_info()== True:
+#         print("INFO get_content_path() in app2.py --> ", get_content_path())
+#     ipath =  os.path.join(get_content_path(),'drive/MyDrive/Phase-6_ML_Classifier_app_py/C-'+L)
+#     images_path = glob(ipath +'/frames/*')
+#     isvideo = True
+
+#     d_model = build_discriminator()
+#     g_model = build_generator(latent_dim)
+#     if L == 'Archery':
+#       archery_d_model_file = os.path.join(get_content_path(),"saved_model/Archery_d_model.h5")
+#       if os.path.exists(archery_d_model_file) == True:
+#         d_model.load_weights(archery_d_model_file)
+#       else:
+#         st.write("archery_d_model_file does not exit")
+
+#       archery_g_model_file = os.path.join(get_content_path(),"saved_model/Archery_g_model.h5")
+#       if os.path.exists(archery_g_model_file) == True:
+#         g_model.load_weights(archery_g_model_file)
+#       else:
+#         st.write("archery_g_model_file does not exit")
+#     elif L == 'Basketball':
+#       d_model.load_weights(os.path.join(get_content_path(),"saved_model/Basketball_d_model.h5"))
+#       g_model.load_weights(os.path.join(get_content_path(),"saved_model/Basketball_g_model.h5"))
+#     elif L == 'Biking':
+#       d_model.load_weights(os.path.join(get_content_path(),"saved_model/Biking_d_model.h5"))
+#       g_model.load_weights(os.path.join(get_content_path(),"saved_model/Biking_g_model.h5"))
+#     elif L == 'CricketShot':
+#       d_model.load_weights(os.path.join(get_content_path(),"saved_model/CricketShot_d_model.h5"))
+#       g_model.load_weights(os.path.join(get_content_path(),"saved_model/CricketShot_g_model.h5"))
+#     elif L == 'HorseRace':
+#       d_model.load_weights(os.path.join(get_content_path(),"saved_model/HorseRace_d_model.h5"))
+#       g_model.load_weights(os.path.join(get_content_path(),"saved_model/HorseRace_g_model.h5"))
+#     elif L == 'IceDancing':
+#       #d_model.load_weights(os.path.join(get_content_path(),"saved_model/IceDancing_d_model.h5"))
+#       g_model.load_weights(os.path.join(get_content_path(),"saved_model/IceDancing_g_model.h5"))
+#       #g_model.load_weights('https://drive.google.com/uc?export=view&id=1SIg9gRxzu1Lysh3upkQ8-F0hYGaO5CEE')
+      
+#     elif L == 'Kayaking':
+#       d_model.load_weights(os.path.join(get_content_path(),"saved_model/Kayaking_d_model.h5"))
+#       g_model.load_weights(os.path.join(get_content_path(),"saved_model/Kayaking_g_model.h5"))
+#     elif L == 'LongJump':
+#       d_model.load_weights(os.path.join(get_content_path(),"saved_model/LongJump_d_model.h5"))
+#       g_model.load_weights(os.path.join(get_content_path(),"saved_model/LongJump_g_model.h5"))
+#     elif L == 'MilitaryParade':
+#       d_model.load_weights(os.path.join(get_content_path(),"saved_model/MilitaryParade_d_model.h5"))
+#       g_model.load_weights(os.path.join(get_content_path(),"saved_model/MilitaryParade_g_model.h5"))
+#     elif L == 'PlayingTabla':
+#       playingTabla_d_model_file = os.path.join(os.path.join(get_content_path(),"saved_model/PlayingTabla_d_model.h5"))
+#       if os.path.exists(playingTabla_d_model_file) == True:
+#         d_model.load_weights(playingTabla_d_model_file)
+#       else:
+#         st.error("playingTabla_d_model_file does not exit")
+
+#       playingTabla_g_model_file = os.path.join(os.path.join(get_content_path(),"saved_model/PlayingTabla_g_model.h5"))
+#       if os.path.exists(playingTabla_g_model_file) == True:
+#         g_model.load_weights(playingTabla_g_model_file)
+#       else:
+#         st.error("playingTabla_g_model_file does not exit")
+#     else:
+#       L = "Invalid"      
+
+#     if L != "Invalid":
+#       examples =""
+#       n_samples = 25
+#       noise = np.random.normal(size=(n_samples, latent_dim))
+#       if L == 'Archery':
+#         examples = g_model.predict(noise)
+#       elif L == 'Basketball':
+#         examples = g_model.predict(noise)
+#       elif L == 'Biking':
+#         examples = g_model.predict(noise)
+#       elif L == 'CricketShot':
+#         examples = g_model.predict(noise)
+#       elif L == 'HorseRace':
+#         examples = g_model.predict(noise)
+#       elif L == 'IceDancing':
+#         examples = g_model.predict(noise)
+#       elif L == 'LongJump':
+#         examples = g_model.predict(noise)
+#       elif L == 'MilitaryParade':
+#         examples = g_model.predict(noise)
+#       elif L == 'PlayingTabla':
+#         examples = g_model.predict(noise)
+#       else:
+#         print('Invalid frames')
+  
+#       save_examples(examples)
+
+#       #Generate the video in avi
+#       output_video_path = os.path.join(get_content_path(),'generated_videos', 'generated_video.avi')
+#       if is_debug() == True:
+#         print("output_video_path.......?" , output_video_path)
+
+#       gen_video(output_video_path)
+
+#       #Convert avi to mp4
+#       clip = moviepy.VideoFileClip(output_video_path)
+#       output_video_path_converted_mp4 = os.path.join(get_content_path(),'generated_videos', 'generated_video.mp4')
+#       clip.write_videofile(output_video_path_converted_mp4)
+
+#       #Show the video
+#       video_file = open(output_video_path_converted_mp4, 'rb') #enter the filename with filepath
+#       video_bytes = video_file.read() #reading the file
+#       st.video(video_bytes, format='video/mp4', start_time=0) #displaying the video
+
+#       for i in os.listdir(os.path.join(get_content_path(), "generated_images")):
+#         st.write(os.path.join(get_content_path(), "generated_images/") + i)
+#         st.image(cv2.imread(os.path.join(get_content_path(), "generated_images/") + i))   
+#     else:
+#        st.error("No Valid Labels identified. Rephrase the search") 
+#        if is_debug() == True:
+#           print("No Valid Labels identified. Rephrase the search") 
 
    

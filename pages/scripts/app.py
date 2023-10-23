@@ -276,42 +276,42 @@ pkl_folder_path = get_content_pkl_path() # /user/home/content
 
 
 #st.write(content_path)
-best_rf_classifier_file = os.path.join(pkl_folder_path, 'best_rf_classifier.pkl')
-loaded_xgb_classifier_file = os.path.join(pkl_folder_path, 'best_xgb_classifier.pkl')
-loaded_lgb_classifier_file = os.path.join(pkl_folder_path, 'best_lgb_classifier.pkl')
+# best_rf_classifier_file = os.path.join(pkl_folder_path, 'best_rf_classifier.pkl')
+# loaded_xgb_classifier_file = os.path.join(pkl_folder_path, 'best_xgb_classifier.pkl')
+# loaded_lgb_classifier_file = os.path.join(pkl_folder_path, 'best_lgb_classifier.pkl')
 #classified_label_file = os.path.join(content_path, 'classified_label.txt')
 
-if is_debug() == True:
-    print(" best_rf_classifier_file path -> ", best_rf_classifier_file)
-    print(" loaded_xgb_classifier_file path -> ", loaded_xgb_classifier_file)
-    print(" loaded_lgb_classifier_file path ->", loaded_lgb_classifier_file)
-    print(" classified_label_file path ->", get_classified_lable_file_path())
+# if is_debug() == True:
+#     print(" best_rf_classifier_file path -> ", best_rf_classifier_file)
+#     print(" loaded_xgb_classifier_file path -> ", loaded_xgb_classifier_file)
+#     print(" loaded_lgb_classifier_file path ->", loaded_lgb_classifier_file)
+#     print(" classified_label_file path ->", get_classified_lable_file_path())
 
 
 if is_debug()==True:
     print("Loading the 'best_rf_classifier'..")
 
-# Load the saved model
-loaded_rf_classifier = joblib.load(best_rf_classifier_file)
+# # Load the saved model
+# loaded_rf_classifier = joblib.load(best_rf_classifier_file)
 
 #------------------------------------------------------
 
 if is_debug()==True:
     print("Loading the 'best_xgb_classifier'..")
 
-import joblib
+# import joblib
 
-# Load the saved model
-loaded_xgb_classifier = joblib.load(loaded_xgb_classifier_file)
+# # Load the saved model
+# loaded_xgb_classifier = joblib.load(loaded_xgb_classifier_file)
 #------------------------------------------------------
 
 if is_debug()==True:
     print("Loading the 'best_lgb_classifier'..")
 
-import joblib
+# import joblib
 
-# Load the saved model
-loaded_lgb_classifier = joblib.load(loaded_lgb_classifier_file)
+# # Load the saved model
+# loaded_lgb_classifier = joblib.load(loaded_lgb_classifier_file)
 #------------------------------------------------------
 
 def preprocess_text(text):
@@ -320,8 +320,40 @@ def preprocess_text(text):
     text = text.lower()
     return text
 #------------------------------------------------------
+def load_rf_model():
+        # base_path = get_base_path() # /user/home
+        # content_folder = get_content_folder()  # content
+        # content_path = get_content_path() # /user/home/content
+        pkl_folder_path = get_content_pkl_path() # /user/home/content
+        best_rf_classifier_file = os.path.join(pkl_folder_path, 'best_rf_classifier.pkl')
+        # Load the saved model
+        loaded_rf_classifier = joblib.load(best_rf_classifier_file)
+        return loaded_rf_classifier
+
+def load_xgb_model():
+        # base_path = get_base_path() # /user/home
+        # content_folder = get_content_folder()  # content
+        # content_path = get_content_path() # /user/home/content
+        pkl_folder_path = get_content_pkl_path() # /user/home/content
+        loaded_xgb_classifier_file = os.path.join(pkl_folder_path, 'best_xgb_classifier.pkl')
+        # Load the saved model
+        loaded_xgb_classifier = joblib.load(loaded_xgb_classifier_file)
+        return loaded_xgb_classifier
+
+
+def load_lgb_model():
+        # base_path = get_base_path() # /user/home
+        # content_folder = get_content_folder()  # content
+        # content_path = get_content_path() # /user/home/content
+        pkl_folder_path = get_content_pkl_path() # /user/home/content
+        loaded_lgb_classifier_file = os.path.join(pkl_folder_path, 'best_lgb_classifier.pkl')
+        # Load the saved model
+        loaded_lgb_classifier = joblib.load(loaded_lgb_classifier_file)
+        return loaded_lgb_classifier
+
 
 def predict_resume_with_rf(text):
+    loaded_rf_classifier = load_rf_model()
     processed_text = preprocess_text(text)
     review = Tfidf_word_vectorizer.transform([processed_text])
     pred = loaded_rf_classifier.predict(review)
@@ -332,6 +364,7 @@ def predict_resume_with_rf(text):
 #------------------------------------------------------
 
 def predict_resume_with_xgb(text):
+  loaded_xgb_classifier = load_xgb_model()
   processed_text = preprocess_text(text)
   review = Tfidf_word_vectorizer.transform([processed_text])
   pred = loaded_xgb_classifier.predict(review)
@@ -342,6 +375,7 @@ def predict_resume_with_xgb(text):
 #------------------------------------------------------
 
 def predict_resume_with_lgb(text):
+  loaded_lgb_classifier = load_lgb_model()
   processed_text = preprocess_text(text)
   review = Tfidf_word_vectorizer.transform([processed_text])
   pred = loaded_lgb_classifier.predict(review)
