@@ -1,20 +1,24 @@
 import streamlit as st
 from PIL import Image
 
-#st.header("Group1 - Capstone project")
-# image = Image.open('genAi.png')
+st.header("Group1 - Capstone project")
+# image = Image.open('parsa-mahmoudi-8x2iLiQ6J_U-unsplash.jpg')
 # st.image(image, caption='IISc - Batch 5 - Capstone Group-1 project')
 
-st.markdown(
-    """
-    <style>
-    .reportview-container {
-        background: url("https://www.example.com/image.jpg");
-    }
-   </style>
-    """,
-    unsafe_allow_html=True
-)
+# st.write("Creator: User Neil Iris (@neil_ingham) from Unsplash")
+# st.write("License: Do whatever you want https://unsplash.com/license")
+# st.write("URL: https://unsplash.com/photos/I2UR7wEftf4")
+    
+# st.markdown(
+#     """
+#     <style>
+#     .reportview-container {
+#         background: url("https://www.example.com/image.jpg");
+#     }
+#    </style>
+#     """,
+#     unsafe_allow_html=True
+# )
 
 # page_bg_img = """
 # <style>
