@@ -6,10 +6,7 @@ from pages.scripts.app2 import generate_video
 
 st.header("Generate video using DCGAN")
 st.subheader("Executing Text Classification")
-
 user_input = st.text_input("#1 Enter the Activity description", help="A man playing archery in front of the garage in the morning", placeholder="A person playing Archery or A person playing football" )
-
-
 st.write("#2 Employ the model for classification.")
 
 with st.container():
@@ -19,7 +16,6 @@ with st.container():
     index=None,horizontal=True
     )
   
-
 with st.container():
     button_clicked = False
     invalid_user_input = False
@@ -54,7 +50,7 @@ with st.container():
                 st.error("Select the model")
             elif len(classified_label) > 0: 
                 #st.success("Result : "+ classified_label)
-                st.markdown(f'Result <font style="color:#33ff33;font-size:15px;">{classified_label}</font>', unsafe_allow_html=True)
+                st.markdown(f'Result <font style="color:blue;font-size:15px;">{classified_label}</font>', unsafe_allow_html=True)
             else:
                 st.warning("No matching action generated")
 
@@ -65,8 +61,7 @@ with st.container():
     #New............................AK    
     with open(get_classified_lable_file_path(), 'r') as f:
         classified_label = f.read()
-    st.write("The classified label for generating the video: ", classified_label)
-    st.markdown(f'The classified text for generating the video: <font style="color:#33ff33;font-size:15px;">{classified_label}</font>', unsafe_allow_html=True)
+    st.markdown(f'The classified text for generating the video: <font style="color:blue;font-size:15px;">{classified_label}</font>', unsafe_allow_html=True)
 
     with st.expander("Advanced options"):    
         custom_customized_label = st.text_input("Enter the activity", help="Name of the activity", placeholder="Enter the exact action class")

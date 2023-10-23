@@ -446,7 +446,7 @@ def generate_video(classified_label):
       if os.path.exists(d_model_file) == True:
         d_model.load_weights(d_model_file)
       else:
-        st.write(L + " d_model_file does not exit")
+        st.info(L + " discriminator model file does not exit")
         exit_program()
 
       if os.path.exists(g_model_file) == True:
@@ -477,10 +477,10 @@ def generate_video(classified_label):
             st.write(os.path.join(get_content_path(), "generated_images/") + i)
             st.image(cv2.imread(os.path.join(get_content_path(), "generated_images/") + i))   
       else:
-        st.write(L + " g_model_file does not exit")
+        st.info(L + " generator model file does not exit")
         exit_program()
     else:
-       st.write("No trainned model is found for " + L)
+       st.info(" No trainned model is found for the action " + L)
        exit_program()
       
 

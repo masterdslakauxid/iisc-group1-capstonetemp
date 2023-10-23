@@ -1,65 +1,49 @@
 import streamlit as st
-import numpy as np
-import time
-import random
-#import enchant
-#from itertools import chain, cycle
+from PIL import Image
 
-st.header("Group1 - Capstone project")
-# title = st.text_input('Activity', '')
-# batch_size = st.text_input('Batch size', '')
-# epoch_size = st.text_input('Epoch size', '')
+#st.header("Group1 - Capstone project")
+# image = Image.open('genAi.png')
+# st.image(image, caption='IISc - Batch 5 - Capstone Group-1 project')
 
-# def my_function():
-#     st.write("button clicked")
+st.markdown(
+    """
+    <style>
+    .reportview-container {
+        background: url("https://www.example.com/image.jpg");
+    }
+   </style>
+    """,
+    unsafe_allow_html=True
+)
 
-# if st.button('Submit'):
-#     if len(title) > 0:
-#         st.write(" The entered activity is ", title.upper())
-#         st.write("Invoking the Model")
-#         con= st.button("Convert", on_click= my_function(), args= ["1,2"])
-#     else:
-#         st.error('Enter a valid activity name .')            
+# page_bg_img = """
+# <style>
+# [data-testid ="stAppViewContainer"] {
+# background-image: url("https://www.google.com/url?sa=i&url=https%3A%2F%2Funsplash.com%2Fphotos%2Fa-room-filled-with-lots-of-wooden-shelves-w5QDlbjJwEY&psig=AOvVaw1jOCXrmgxH6MwKugw4-Uj5&ust=1698151166097000&source=images&cd=vfe&ved=0CBEQjRxqFwoTCIDC2JyYjIIDFQAAAAAdAAAAABAE");
+# background-size: cover;
+# }
+# </style>
+# """
+# st.markdown(page_bg_img, unsafe_allow_html=True)
+#st.set_page_config(page_title="GAN based video generation", layout="wide")
 
-# if st.button('Classify SGBoost'):
-#     if len(title) > 0:
-#         st.write(" The entered activity is ", title.upper())
-#         st.write("Invoking the Model")
-#         con= st.button("Classify SGBoost", on_click= my_function(), args= ["1,2"])
+# st.header("Group1 - Capstone project")
 
+# st.markdown(
+#     """
+#     <link rel="stylesheet" type="text/css" href="https://www.example.com/style.css">
+#     """,
+#     unsafe_allow_html=True
+# )
 
-# dict = enchant.Dict("en_US")
-
-# if st.button('Submit'):
-#     if len(title) > 0:
-#         #if len(title) < 6:
-#         #x = title.replace(" ","* *")
-#         words = list(chain(*zip(title.split(), cycle(' '))))[:-1]
-#         #words = x.split("*")
-#       #  st.write(words)
-
-#         valid_title = True
-
-#         for word in words:
-#           #  st.write (word.strip() , len(word.strip()))
-#             if len(word.strip()) != 0:
-#                 if dict.check(word) == False:
-#                     valid_title = False
-#                     break
-                    
-#                     #print("The misspelled words are : " + str(misspelled))
-
-#         if valid_title == True:
-#             st.write('The activity to search is .'+ title.upper())            
-#         else:
-#             st.error('Enter a valid activity name .')            
-
-#         # if dict.check(title) == False:
-#         #     st.error("Enter a valid activity name")
-#         # else:
-#         #     st.write('The activity to search is .', title.upper())
-#     else: 
-#         st.error("Activity to search is missing")
-
-    
+# st.markdown(
+#     """
+#     <style>
+#     .reportview-container {
+#          background: url("https://www.example.com/image.jpg");
+#     }
+#    </style>
+#     """,
+#     unsafe_allow_html=True
+# )
 
