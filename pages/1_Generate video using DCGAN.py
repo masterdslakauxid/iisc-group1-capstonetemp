@@ -74,14 +74,11 @@ with st.container():
 
     with st.expander("Advanced options"):    
         custom_customized_label = st.text_input("Enter the activity", help="Name of the activity", placeholder="Enter the exact action class")
-       # show_video = st.checkbox('Show video')
-        show_images = st.checkbox('Show images')
-
     if st.button('Generate Video'):
         if len(custom_customized_label) > 0:
-            generate_video(custom_customized_label, show_images)
+            generate_video(custom_customized_label)
         else:
-            generate_video(classified_label, show_images)
+            generate_video(classified_label)
             
 
 

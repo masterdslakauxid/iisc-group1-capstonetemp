@@ -428,7 +428,7 @@ def exit_program():
     print("Exiting the program...")
     sys.exit(0)
 
-def generate_video(classified_label, show_images):
+def generate_video(classified_label):
     
     examples =""
     n_samples = 25
@@ -472,11 +472,10 @@ def generate_video(classified_label, show_images):
           video_bytes = video_file.read() #reading the file
           st.video(video_bytes, format='video/mp4', start_time=0) #displaying the video
 
-        if show_images:
-          with st.expander("Generated images"): 
-            for i in os.listdir(os.path.join(get_content_path(), "generated_images")):
-              st.write(os.path.join(get_content_path(), "generated_images/") + i)
-              st.image(cv2.imread(os.path.join(get_content_path(), "generated_images/") + i))   
+        with st.expander("Generated images"): 
+          for i in os.listdir(os.path.join(get_content_path(), "generated_images")):
+            st.write(os.path.join(get_content_path(), "generated_images/") + i)
+            st.image(cv2.imread(os.path.join(get_content_path(), "generated_images/") + i))   
       else:
         st.info(L + " generator model file does not exit")
         exit_program()
