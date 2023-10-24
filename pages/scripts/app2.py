@@ -227,6 +227,7 @@ def play_video(video_path, fps=25, width=120, height=100, loop=True):
 #     isvideo = True
 
 #     #d_model = build_discriminator()
+
 #     #g_model = build_generator(latent_dim)
 #     if L == 'Archery':
 #       Archery_d_model.load_weights("/content/saved_model/Archery_d_model.h5")
